@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, LogOut, Settings } from 'lucide-react';
+import { User, LogOut, Settings, Shield } from 'lucide-react';
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
@@ -32,6 +32,9 @@ const UserMenu = () => {
       </Link>
     );
   }
+
+  const userRole = user.user_metadata?.role;
+  const canAccessAdmin = userRole === 'admin' || userRole === 'editor';
 
   return (
     <DropdownMenu>
@@ -55,6 +58,17 @@ const UserMenu = () => {
           </div>
         </div>
         <DropdownMenuSeparator />
+        {canAccessAdmin && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link to="/admin">
+                <Shield className="mr-2 h-4 w-4" />
+                <span>অ্যাডমিন ড্যাশবোর্ড</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem>
           <Settings className="mr-2 h-4 w-4" />
           <span>সেটিংস</span>
