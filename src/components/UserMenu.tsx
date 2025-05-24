@@ -1,7 +1,8 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,6 +17,23 @@ import { User, LogOut, Settings, Shield } from 'lucide-react';
 const UserMenu = () => {
   const { user, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        
+        setUserRole(profile?.role || null);
+      }
+    };
+
+    fetchUserRole();
+  }, [user]);
 
   const handleSignOut = async () => {
     setLoading(true);
@@ -33,7 +51,6 @@ const UserMenu = () => {
     );
   }
 
-  const userRole = user.user_metadata?.role;
   const canAccessAdmin = userRole === 'admin' || userRole === 'editor';
 
   return (

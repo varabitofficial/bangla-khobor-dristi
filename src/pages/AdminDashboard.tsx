@@ -1,7 +1,8 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PostsManagement from '@/components/admin/PostsManagement';
@@ -18,19 +19,43 @@ const AdminDashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [roleLoading, setRoleLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading && (!user || !['admin', 'editor'].includes(user.user_metadata?.role))) {
-      toast({
-        title: "অ্যাক্সেস নিষিদ্ধ",
-        description: "আপনার এই পেজে অ্যাক্সেস নেই।",
-        variant: "destructive",
-      });
-      navigate('/');
-    }
+    const checkUserRole = async () => {
+      if (!loading && user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        
+        setUserRole(profile?.role || null);
+        setRoleLoading(false);
+
+        if (!profile || !['admin', 'editor'].includes(profile.role)) {
+          toast({
+            title: "অ্যাক্সেস নিষিদ্ধ",
+            description: "আপনার এই পেজে অ্যাক্সেস নেই।",
+            variant: "destructive",
+          });
+          navigate('/');
+        }
+      } else if (!loading && !user) {
+        toast({
+          title: "অ্যাক্সেস নিষিদ্ধ",
+          description: "আপনাকে প্রথমে লগইন করতে হবে।",
+          variant: "destructive",
+        });
+        navigate('/auth');
+      }
+    };
+
+    checkUserRole();
   }, [user, loading, navigate, toast]);
 
-  if (loading) {
+  if (loading || roleLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center font-bangla">
         <div className="text-lg">লোড হচ্ছে...</div>
@@ -38,7 +63,7 @@ const AdminDashboard = () => {
     );
   }
 
-  if (!user || !['admin', 'editor'].includes(user.user_metadata?.role)) {
+  if (!user || !userRole || !['admin', 'editor'].includes(userRole)) {
     return null;
   }
 
@@ -47,7 +72,7 @@ const AdminDashboard = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">অ্যাডমিন ড্যাশবোর্ড</h1>
-          <p className="text-gray-600 mt-2">NewsviewBD পরিচালনা প্যানেল</p>
+          <p className="text-gray-600 mt-2">NewsViewBD পরিচালনা প্যানেল</p>
         </div>
 
         <DashboardStats />
