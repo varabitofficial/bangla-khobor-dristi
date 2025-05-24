@@ -151,6 +151,7 @@ export type Database = {
           is_featured: boolean | null
           published_at: string | null
           read_time: number | null
+          status: string | null
           tags: string[] | null
           title: string
           updated_at: string
@@ -167,6 +168,7 @@ export type Database = {
           is_featured?: boolean | null
           published_at?: string | null
           read_time?: number | null
+          status?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string
@@ -183,6 +185,7 @@ export type Database = {
           is_featured?: boolean | null
           published_at?: string | null
           read_time?: number | null
+          status?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string
