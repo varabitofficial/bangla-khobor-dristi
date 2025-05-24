@@ -204,7 +204,7 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
             <Checkbox
               id="is_featured"
               checked={formData.is_featured}
-              onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
+              onCheckedChange={(checked) => setFormData({ ...formData, is_featured: Boolean(checked) })}
             />
             <Label htmlFor="is_featured">ফিচারড পোস্ট</Label>
           </div>

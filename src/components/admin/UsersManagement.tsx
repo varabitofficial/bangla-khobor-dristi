@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
+type UserRole = 'admin' | 'editor' | 'reader';
+
 const UsersManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -26,7 +28,7 @@ const UsersManagement = () => {
   });
 
   const updateUserRole = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
+    mutationFn: async ({ userId, role }: { userId: string; role: UserRole }) => {
       const { error } = await supabase
         .from('profiles')
         .update({ role })
@@ -99,8 +101,8 @@ const UsersManagement = () => {
                     </TableCell>
                     <TableCell>
                       <Select
-                        value={user.role}
-                        onValueChange={(value) => updateUserRole.mutate({ 
+                        value={user.role as UserRole}
+                        onValueChange={(value: UserRole) => updateUserRole.mutate({ 
                           userId: user.id, 
                           role: value 
                         })}

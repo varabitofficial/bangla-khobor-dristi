@@ -202,7 +202,7 @@ const AdsManagement = () => {
                 <Checkbox
                   id="is_active"
                   checked={formData.is_active}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: Boolean(checked) })}
                 />
                 <Label htmlFor="is_active">সক্রিয় বিজ্ঞাপন</Label>
               </div>
