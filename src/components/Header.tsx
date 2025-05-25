@@ -2,9 +2,11 @@
 import { useState } from "react";
 import { Search, User, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useCategories } from "@/hooks/useCategories";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: categories } = useCategories();
 
   const getCurrentDate = () => {
     const today = new Date();
@@ -15,6 +17,11 @@ const Header = () => {
       day: 'numeric' 
     };
     return today.toLocaleDateString('bn-BD', options);
+  };
+
+  // Get category by name helper function
+  const getCategoryByName = (name: string) => {
+    return categories?.find(cat => cat.name === name);
   };
 
   return (
@@ -46,12 +53,42 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-8">
             <Link to="/" className="text-gray-700 hover:text-black transition-colors">হোম</Link>
-            <Link to="/bangladesh" className="text-gray-700 hover:text-black transition-colors">বাংলাদেশ</Link>
-            <Link to="/international" className="text-gray-700 hover:text-black transition-colors">আন্তর্জাতিক</Link>
-            <Link to="/politics" className="text-gray-700 hover:text-black transition-colors">রাজনীতি</Link>
-            <Link to="/business" className="text-gray-700 hover:text-black transition-colors">ব্যবসা</Link>
-            <Link to="/technology" className="text-gray-700 hover:text-black transition-colors">প্রযুক্তি</Link>
-            <Link to="/sports" className="text-gray-700 hover:text-black transition-colors">খেলা</Link>
+            <Link 
+              to={`/category/${getCategoryByName('বাংলাদেশ')?.slug || 'bangladesh'}`} 
+              className="text-gray-700 hover:text-black transition-colors"
+            >
+              বাংলাদেশ
+            </Link>
+            <Link 
+              to={`/category/${getCategoryByName('আন্তর্জাতিক')?.slug || 'international'}`} 
+              className="text-gray-700 hover:text-black transition-colors"
+            >
+              আন্তর্জাতিক
+            </Link>
+            <Link 
+              to={`/category/${getCategoryByName('রাজনীতি')?.slug || 'politics'}`} 
+              className="text-gray-700 hover:text-black transition-colors"
+            >
+              রাজনীতি
+            </Link>
+            <Link 
+              to={`/category/${getCategoryByName('ব্যবসা')?.slug || 'business'}`} 
+              className="text-gray-700 hover:text-black transition-colors"
+            >
+              ব্যবসা
+            </Link>
+            <Link 
+              to={`/category/${getCategoryByName('প্রযুক্তি')?.slug || 'technology'}`} 
+              className="text-gray-700 hover:text-black transition-colors"
+            >
+              প্রযুক্তি
+            </Link>
+            <Link 
+              to={`/category/${getCategoryByName('খেলা')?.slug || 'sports'}`} 
+              className="text-gray-700 hover:text-black transition-colors"
+            >
+              খেলা
+            </Link>
           </nav>
 
           {/* Search and User Actions */}
@@ -88,12 +125,42 @@ const Header = () => {
           <nav className="lg:hidden mt-4 py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-4">
               <Link to="/" className="text-gray-700 hover:text-black transition-colors">হোম</Link>
-              <Link to="/bangladesh" className="text-gray-700 hover:text-black transition-colors">বাংলাদেশ</Link>
-              <Link to="/international" className="text-gray-700 hover:text-black transition-colors">আন্তর্জাতিক</Link>
-              <Link to="/politics" className="text-gray-700 hover:text-black transition-colors">রাজনীতি</Link>
-              <Link to="/business" className="text-gray-700 hover:text-black transition-colors">ব্যবসা</Link>
-              <Link to="/technology" className="text-gray-700 hover:text-black transition-colors">প্রযুক্তি</Link>
-              <Link to="/sports" className="text-gray-700 hover:text-black transition-colors">খেলা</Link>
+              <Link 
+                to={`/category/${getCategoryByName('বাংলাদেশ')?.slug || 'bangladesh'}`} 
+                className="text-gray-700 hover:text-black transition-colors"
+              >
+                বাংলাদেশ
+              </Link>
+              <Link 
+                to={`/category/${getCategoryByName('আন্তর্জাতিক')?.slug || 'international'}`} 
+                className="text-gray-700 hover:text-black transition-colors"
+              >
+                আন্তর্জাতিক
+              </Link>
+              <Link 
+                to={`/category/${getCategoryByName('রাজনীতি')?.slug || 'politics'}`} 
+                className="text-gray-700 hover:text-black transition-colors"
+              >
+                রাজনীতি
+              </Link>
+              <Link 
+                to={`/category/${getCategoryByName('ব্যবসা')?.slug || 'business'}`} 
+                className="text-gray-700 hover:text-black transition-colors"
+              >
+                ব্যবসা
+              </Link>
+              <Link 
+                to={`/category/${getCategoryByName('প্রযুক্তি')?.slug || 'technology'}`} 
+                className="text-gray-700 hover:text-black transition-colors"
+              >
+                প্রযুক্তি
+              </Link>
+              <Link 
+                to={`/category/${getCategoryByName('খেলা')?.slug || 'sports'}`} 
+                className="text-gray-700 hover:text-black transition-colors"
+              >
+                খেলা
+              </Link>
               
               <div className="pt-4 border-t border-gray-200">
                 <input
