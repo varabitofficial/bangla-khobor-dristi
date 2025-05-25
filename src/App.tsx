@@ -7,10 +7,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import PostSingle from "./pages/PostSingle";
+import PostsArchive from "./pages/PostsArchive";
+import VideosArchive from "./pages/VideosArchive";
+import TagsArchive from "./pages/TagsArchive";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPosts from "./pages/admin/AdminPosts";
 import AdminCategories from "./pages/admin/AdminCategories";
+import AdminSubcategories from "./pages/admin/AdminSubcategories";
+import AdminTags from "./pages/admin/AdminTags";
 import AdminComments from "./pages/admin/AdminComments";
 import AdminVideos from "./pages/admin/AdminVideos";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -31,10 +36,15 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/post/:id" element={<PostSingle />} />
+            <Route path="/posts" element={<PostsArchive />} />
+            <Route path="/videos" element={<VideosArchive />} />
+            <Route path="/tags" element={<TagsArchive />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/posts" element={<AdminPosts />} />
             <Route path="/admin/categories" element={<AdminCategories />} />
+            <Route path="/admin/subcategories" element={<AdminSubcategories />} />
+            <Route path="/admin/tags" element={<AdminTags />} />
             <Route path="/admin/comments" element={<AdminComments />} />
             <Route path="/admin/videos" element={<AdminVideos />} />
             <Route path="/admin/users" element={<AdminUsers />} />

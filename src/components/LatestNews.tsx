@@ -1,69 +1,84 @@
 
 import { Link } from "react-router-dom";
 import { Clock, Calendar } from "lucide-react";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const LatestNews = () => {
-  const newsItems = [
-    {
-      id: "4",
-      title: "সংসদে নতুন শিক্ষা বিল পাস",
-      excerpt: "সংসদে নতুন শিক্ষা বিল পাস হয়েছে। এতে শিক্ষাব্যবস্থায় আমূল পরিবর্তন আনা হবে।",
-      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=300&h=200&fit=crop",
-      category: "রাজনীতি",
-      date: "২৩ মে, ২০২৪",
-      readTime: "৩ মিনিট"
+  const { data: posts, isLoading } = useQuery({
+    queryKey: ['latest-posts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          categories (name),
+          profiles (full_name)
+        `)
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(8);
+
+      if (error) throw error;
+      return data;
     },
-    {
-      id: "5",
-      title: "নতুন প্রযুক্তি কেন্দ্র উদ্বোধন",
-      excerpt: "চট্টগ্রামে নতুন প্রযুক্তি কেন্দ্র উদ্বোধন করা হয়েছে। এতে হাজারো তরুণের কর্মসংস্থান হবে।",
-      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop",
-      category: "প্রযুক্তি",
-      date: "২২ মে, ২০২৪",
-      readTime: "৪ মিনিট"
-    },
-    {
-      id: "6",
-      title: "অর্থনৈতিক প্রবৃদ্ধিতে নতুন রেকর্ড",
-      excerpt: "চলতি অর্থবছরে দেশের অর্থনৈতিক প্রবৃদ্ধি ৮.৫% এ পৌঁছেছে।",
-      image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=300&h=200&fit=crop",
-      category: "অর্থনীতি",
-      date: "২১ মে, ২০২৪",
-      readTime: "৫ মিনিট"
-    },
-    {
-      id: "7",
-      title: "ক্রিকেট বিশ্বকাপে বাংলাদেশের সাফল্য",
-      excerpt: "ক্রিকেট বিশ্বকাপে বাংলাদেশ দল চমৎকার পারফরম্যান্স দেখিয়েছে।",
-      image: "https://images.unsplash.com/photo-1517022812141-23620dba5c23?w=300&h=200&fit=crop",
-      category: "খেলা",
-      date: "২০ মে, ২০২৪",
-      readTime: "৩ মিনিট"
-    }
-  ];
+  });
+
+  if (isLoading) {
+    return (
+      <section className="container mx-auto px-4 py-12">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900">সর্বশেষ সংবাদ</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white rounded-lg border border-gray-200">
+              <div className="w-full h-48 bg-gray-200 animate-pulse rounded-t-lg"></div>
+              <div className="p-4 space-y-3">
+                <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-3 bg-gray-200 animate-pulse rounded w-3/4"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (!posts || posts.length === 0) {
+    return (
+      <section className="container mx-auto px-4 py-12">
+        <div className="text-center py-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">কোন পোস্ট পাওয়া যায়নি</h2>
+          <p className="text-gray-600">অনুগ্রহ করে অ্যাডমিন প্যানেল থেকে পোস্ট তৈরি করুন।</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="container mx-auto px-4 py-12">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl font-bold text-gray-900">সর্বশেষ সংবাদ</h2>
-        <Link to="/news" className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2">
+        <Link to="/posts" className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2">
           সব দেখুন
           <span>→</span>
         </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {newsItems.map((item) => (
+        {posts.map((item) => (
           <Link key={item.id} to={`/post/${item.id}`} className="group">
             <article className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300">
               <div className="relative overflow-hidden">
                 <img 
-                  src={item.image} 
+                  src={item.featured_image || "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=300&h=200&fit=crop"} 
                   alt={item.title}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <span className="absolute top-3 left-3 bg-blue-600 text-white px-2 py-1 text-xs font-medium rounded">
-                  {item.category}
+                  {item.categories?.name}
                 </span>
               </div>
               
@@ -77,11 +92,11 @@ const LatestNews = () => {
                 <div className="flex justify-between items-center text-xs text-gray-500">
                   <div className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
-                    <span>{item.date}</span>
+                    <span>{new Date(item.created_at).toLocaleDateString('bn-BD')}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    <span>{item.readTime}</span>
+                    <span>{item.read_time} মিনিট</span>
                   </div>
                 </div>
               </div>
