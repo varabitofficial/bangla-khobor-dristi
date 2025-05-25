@@ -7,13 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Database } from '@/integrations/supabase/types';
+
+type UserRole = Database['public']['Enums']['user_role'];
 
 interface CreateUserFormData {
   email: string;
   password: string;
   fullName: string;
-  role: string;
+  role: UserRole;
 }
 
 export const CreateUserForm = () => {
@@ -127,7 +129,7 @@ export const CreateUserForm = () => {
 
       <div className="space-y-2">
         <Label>ইউজার রোল</Label>
-        <Select onValueChange={(value) => setValue('role', value)} value={selectedRole}>
+        <Select onValueChange={(value: UserRole) => setValue('role', value)} value={selectedRole}>
           <SelectTrigger>
             <SelectValue placeholder="রোল নির্বাচন করুন" />
           </SelectTrigger>
