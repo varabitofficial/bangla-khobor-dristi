@@ -1,44 +1,98 @@
 
 import { useParams, Link } from "react-router-dom";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
 import CommentSection from "@/components/CommentSection";
 import RelatedNews from "@/components/RelatedNews";
 import { Calendar, Clock, User } from "lucide-react";
+import { useEffect } from "react";
 
 const PostSingle = () => {
   const { id } = useParams();
 
-  // Mock post data - this would come from Supabase later
-  const post = {
-    id: id || "1",
-    title: "সংসদে নতুন শিক্ষা বিল নিয়ে বিতর্ক",
-    content: `
-      <p class="mb-4">একটি নতুন শিক্ষা বিল নিয়ে আজ সংসদে ব্যাপক বিতর্ক হয়েছে। এই বিলটি দেশের শিক্ষা ব্যবস্থায় আমূল পরিবর্তন আনতে পারে।</p>
-      
-      <p class="mb-4">"শিক্ষা আমাদের ভবিষ্যতের ভিত্তি। এই বিলের মাধ্যমে আমরা একটি আধুনিক এবং যুগোপযোগী শিক্ষা ব্যবস্থা গড়ে তুলতে চাই," বলেছেন শিক্ষামন্ত্রী।</p>
+  const { data: post, isLoading, error } = useQuery({
+    queryKey: ['post', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          categories (name),
+          subcategories (name),
+          profiles (full_name),
+          post_tags (
+            tags (name)
+          )
+        `)
+        .eq('id', id)
+        .eq('status', 'published')
+        .single();
 
-      <h3 class="text-xl font-semibold mb-3 mt-6">বিলের মূল বিষয়সমূহ</h3>
-      <p class="mb-4">এই বিলের মধ্যে রয়েছে:</p>
-      <ul class="list-disc list-inside mb-4 space-y-2">
-        <li>প্রাথমিক শিক্ষার মান উন্নয়ন</li>
-        <li>উচ্চশিক্ষায় গবেষণার সুবিধা বৃদ্ধি</li>
-        <li>প্রযুক্তিগত শিক্ষার আধুনিকীকরণ</li>
-        <li>শিক্ষক প্রশিক্ষণ কর্মসূচি সম্প্রসারণ</li>
-      </ul>
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
 
-      <h3 class="text-xl font-semibold mb-3 mt-6">বিরোধী দলের অবস্থান</h3>
-      <p class="mb-4">বিরোধী দলের সদস্যরা এই বিলের কিছু ধারা নিয়ে প্রশ্ন তুলেছেন। তারা মনে করেন, এই বিল বাস্তবায়নের জন্য পর্যাপ্ত বাজেট বরাদ্দের প্রয়োজন।</p>
+  // Increment view count when post loads
+  useEffect(() => {
+    if (post?.id) {
+      supabase.rpc('increment_post_view_count', { post_id: post.id });
+    }
+  }, [post?.id]);
 
-      <p class="mb-4">আগামী সপ্তাহে এই বিল নিয়ে আরও আলোচনা হবে বলে জানানো হয়েছে।</p>
-    `,
-    image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=400&fit=crop",
-    category: "রাজনীতি",
-    author: "আহমেদ হাসান",
-    date: "২৩ মে, ২০২৪",
-    readTime: "৫ মিনিট"
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white font-bangla">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded mb-4"></div>
+              <div className="h-64 bg-gray-200 rounded mb-8"></div>
+              <div className="space-y-4">
+                <div className="h-4 bg-gray-200 rounded"></div>
+                <div className="h-4 bg-gray-200 rounded"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <div className="min-h-screen bg-white font-bangla">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">পোস্ট পাওয়া যায়নি</h1>
+            <p className="text-gray-600 mb-8">দুঃখিত, এই পোস্টটি খুঁজে পাওয়া যায়নি।</p>
+            <Link to="/" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+              হোমে ফিরুন
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('bn-BD', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
+
+  const tags = post.post_tags?.map(pt => pt.tags.name) || [];
 
   return (
     <div className="min-h-screen bg-white font-bangla">
@@ -50,7 +104,15 @@ const PostSingle = () => {
           <nav className="text-sm text-gray-600 mb-6">
             <Link to="/" className="hover:text-black">হোম</Link>
             <span className="mx-2">/</span>
-            <span className="text-black">{post.category}</span>
+            <Link to={`/category/${post.categories?.name}`} className="hover:text-black">
+              {post.categories?.name}
+            </Link>
+            {post.subcategories && (
+              <>
+                <span className="mx-2">/</span>
+                <span className="text-black">{post.subcategories.name}</span>
+              </>
+            )}
           </nav>
 
           {/* Article Header */}
@@ -58,8 +120,13 @@ const PostSingle = () => {
             <header className="mb-8">
               <div className="flex items-center gap-2 mb-4">
                 <span className="bg-red-600 text-white px-3 py-1 text-sm font-medium">
-                  {post.category}
+                  {post.categories?.name}
                 </span>
+                {post.subcategories && (
+                  <span className="bg-gray-600 text-white px-3 py-1 text-sm font-medium">
+                    {post.subcategories.name}
+                  </span>
+                )}
               </div>
               
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
@@ -69,27 +136,41 @@ const PostSingle = () => {
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 border-b border-gray-200 pb-4">
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4" />
-                  <span>{post.author}</span>
+                  <span>{post.profiles?.full_name}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  <span>{post.date}</span>
+                  <span>{formatDate(post.published_at || post.created_at)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
-                  <span>{post.readTime} পড়ার সময়</span>
+                  <span>{post.read_time} মিনিট পড়ার সময়</span>
                 </div>
+                {post.view_count > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span>{post.view_count} বার পড়া হয়েছে</span>
+                  </div>
+                )}
               </div>
             </header>
 
             {/* Featured Image */}
-            <div className="mb-8">
-              <img 
-                src={post.image} 
-                alt={post.title}
-                className="w-full h-[400px] object-cover rounded-lg"
-              />
-            </div>
+            {post.featured_image && (
+              <div className="mb-8">
+                <img 
+                  src={post.featured_image} 
+                  alt={post.title}
+                  className="w-full h-[400px] object-cover rounded-lg"
+                />
+              </div>
+            )}
+
+            {/* Excerpt */}
+            {post.excerpt && (
+              <div className="mb-6 p-4 bg-gray-50 border-l-4 border-blue-600 italic text-gray-700">
+                {post.excerpt}
+              </div>
+            )}
 
             {/* Article Content */}
             <div 
@@ -104,14 +185,20 @@ const PostSingle = () => {
 
             {/* Article Footer */}
             <footer className="mt-12 pt-8 border-t border-gray-200">
-              <div className="flex flex-wrap gap-2">
-                <span className="text-sm text-gray-600">ট্যাগ:</span>
-                {['শিক্ষা', 'সংসদ', 'রাজনীতি', 'বিল'].map((tag) => (
-                  <span key={tag} className="bg-gray-100 text-gray-700 px-2 py-1 text-sm rounded hover:bg-gray-200 cursor-pointer">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-sm text-gray-600">ট্যাগ:</span>
+                  {tags.map((tag) => (
+                    <Link 
+                      key={tag} 
+                      to={`/tag/${tag}`}
+                      className="bg-gray-100 text-gray-700 px-2 py-1 text-sm rounded hover:bg-gray-200 cursor-pointer"
+                    >
+                      #{tag}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </footer>
           </article>
 
@@ -124,7 +211,7 @@ const PostSingle = () => {
           </div>
 
           {/* Related News */}
-          <RelatedNews category={post.category} currentPostId={post.id} />
+          <RelatedNews category={post.categories?.name} currentPostId={post.id} />
         </div>
       </main>
 
