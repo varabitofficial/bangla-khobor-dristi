@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -127,36 +126,73 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
 
   const saveMutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log('Attempting to save post with data:', data);
+      console.log('Current user:', user);
+
+      // Enhanced validation
+      if (!user?.id) {
+        throw new Error('ব্যবহারকারী লগ ইন করা নেই। দয়া করে আবার লগ ইন করুন।');
+      }
+
+      if (!data.title?.trim()) {
+        throw new Error('পোস্টের শিরোনাম প্রয়োজন।');
+      }
+
+      if (!data.content?.trim()) {
+        throw new Error('পোস্টের কন্টেন্ট প্রয়োজন।');
+      }
+
+      if (!data.category_id) {
+        throw new Error('ক্যাটেগরি নির্বাচন করুন।');
+      }
+
       const postData = {
         ...data,
-        author_id: user?.id
+        author_id: user.id,
+        published_at: data.status === 'published' ? new Date().toISOString() : null
       };
+
+      console.log('Final post data to save:', postData);
 
       let postId = post?.id;
 
       if (post) {
+        console.log('Updating existing post:', post.id);
         const { error } = await supabase
           .from('posts')
           .update(postData)
           .eq('id', post.id);
-        if (error) throw error;
+        if (error) {
+          console.error('Update error:', error);
+          throw error;
+        }
       } else {
+        console.log('Creating new post');
         const { data: newPost, error } = await supabase
           .from('posts')
           .insert([postData])
           .select()
           .single();
-        if (error) throw error;
+        if (error) {
+          console.error('Insert error:', error);
+          throw error;
+        }
         postId = newPost.id;
+        console.log('New post created with ID:', postId);
       }
 
       // Handle tags
       if (postId) {
+        console.log('Handling tags for post:', postId);
         // Remove existing tags
-        await supabase
+        const { error: deleteError } = await supabase
           .from('post_tags')
           .delete()
           .eq('post_id', postId);
+        
+        if (deleteError) {
+          console.error('Error deleting existing tags:', deleteError);
+        }
 
         // Add new tags
         if (selectedTags.length > 0) {
@@ -165,13 +201,19 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
             tag_id: tagId
           }));
           
+          console.log('Adding tags:', tagData);
           const { error: tagError } = await supabase
             .from('post_tags')
             .insert(tagData);
           
-          if (tagError) throw tagError;
+          if (tagError) {
+            console.error('Tag insert error:', tagError);
+            throw tagError;
+          }
         }
       }
+
+      return postId;
     },
     onSuccess: () => {
       toast({
@@ -180,26 +222,43 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
       });
       onSuccess();
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error('Save post error:', error);
+      const errorMessage = error?.message || error?.error_description || "পোস্ট সেভ করতে সমস্যা হয়েছে।";
       toast({
         title: "ত্রুটি",
-        description: "পোস্ট সেভ করতে সমস্যা হয়েছে।",
+        description: errorMessage,
         variant: "destructive",
       });
     },
   });
 
   const handleSubmit = (status: 'draft' | 'published') => {
-    if (!formData.title || !formData.content || !formData.category_id) {
+    console.log('Submit triggered with status:', status);
+    console.log('Form data:', formData);
+    console.log('User:', user);
+
+    // Client-side validation
+    if (!user?.id) {
       toast({
         title: "ত্রুটি",
-        description: "সকল প্রয়োজনীয় ফিল্ড পূরণ করুন।",
+        description: "দয়া করে প্রথমে লগ ইন করুন।",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.title?.trim() || !formData.content?.trim() || !formData.category_id) {
+      toast({
+        title: "ত্রুটি",
+        description: "সকল প্রয়োজনীয় ফিল্ড পূরণ করুন। (শিরোনাম, কন্টেন্ট, ক্যাটেগরি)",
         variant: "destructive",
       });
       return;
     }
     
     const dataToSave = { ...formData, status };
+    console.log('Calling mutation with:', dataToSave);
     saveMutation.mutate(dataToSave);
   };
 
@@ -217,6 +276,7 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
       // Refetch tags to update the list
       window.location.reload();
     } catch (error) {
+      console.error('Create tag error:', error);
       toast({
         title: "ত্রুটি",
         description: "ট্যাগ তৈরি করতে সমস্যা হয়েছে।",
@@ -232,6 +292,15 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
         : [...prev, tagId]
     );
   };
+
+  // Debug info
+  console.log('Current user in PostForm:', user);
+  console.log('Form validation state:', {
+    hasTitle: !!formData.title?.trim(),
+    hasContent: !!formData.content?.trim(),
+    hasCategory: !!formData.category_id,
+    hasUser: !!user?.id
+  });
 
   return (
     <Card className="max-w-4xl mx-auto">
@@ -260,6 +329,16 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Debug info for development */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="bg-gray-100 p-2 text-xs rounded">
+            <p>User ID: {user?.id || 'Not logged in'}</p>
+            <p>Title: {formData.title ? 'Yes' : 'No'}</p>
+            <p>Content: {formData.content ? 'Yes' : 'No'}</p>
+            <p>Category: {formData.category_id || 'Not selected'}</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <div>
