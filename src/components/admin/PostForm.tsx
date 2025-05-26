@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -146,10 +147,12 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
         throw new Error('ক্যাটেগরি নির্বাচন করুন।');
       }
 
+      // Clean the data - convert empty strings to null for UUID fields
       const postData = {
         ...data,
         author_id: user.id,
-        published_at: data.status === 'published' ? new Date().toISOString() : null
+        published_at: data.status === 'published' ? new Date().toISOString() : null,
+        subcategory_id: data.subcategory_id && data.subcategory_id.trim() !== '' ? data.subcategory_id : null
       };
 
       console.log('Final post data to save:', postData);
@@ -336,6 +339,7 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
             <p>Title: {formData.title ? 'Yes' : 'No'}</p>
             <p>Content: {formData.content ? 'Yes' : 'No'}</p>
             <p>Category: {formData.category_id || 'Not selected'}</p>
+            <p>Subcategory: {formData.subcategory_id || 'None selected'}</p>
           </div>
         )}
 
