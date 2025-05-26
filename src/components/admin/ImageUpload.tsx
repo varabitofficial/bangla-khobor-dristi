@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { ImageGallery } from './ImageGallery';
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -81,6 +82,11 @@ export const ImageUpload = ({ onImageUploaded, currentImage, label = "ইমে�
     }
   };
 
+  const handleImageSelect = (url: string) => {
+    setPreviewUrl(url);
+    onImageUploaded(url);
+  };
+
   const removeImage = () => {
     setPreviewUrl('');
     onImageUploaded('');
@@ -91,44 +97,74 @@ export const ImageUpload = ({ onImageUploaded, currentImage, label = "ইমে�
       <Label>{label}</Label>
       
       {previewUrl ? (
-        <div className="relative">
-          <img 
-            src={previewUrl} 
-            alt="Preview" 
-            className="w-full h-48 object-cover rounded-lg border"
+        <div className="space-y-3">
+          <div className="relative">
+            <img 
+              src={previewUrl} 
+              alt="Preview" 
+              className="w-full h-48 object-cover rounded-lg border"
+            />
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="absolute top-2 right-2"
+              onClick={removeImage}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <div className="flex space-x-2">
+            <Label htmlFor="image-upload-replace" className="cursor-pointer">
+              <Button variant="outline" size="sm" asChild>
+                <div className="flex items-center space-x-2">
+                  <Upload className="w-4 h-4" />
+                  <span>নতুন ইমেজ আপলোড</span>
+                </div>
+              </Button>
+            </Label>
+            <ImageGallery onImageSelect={handleImageSelect} />
+          </div>
+          
+          <Input
+            id="image-upload-replace"
+            type="file"
+            accept="image/*"
+            onChange={handleFileUpload}
+            disabled={uploading}
+            className="hidden"
           />
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            className="absolute top-2 right-2"
-            onClick={removeImage}
-          >
-            <X className="w-4 h-4" />
-          </Button>
         </div>
       ) : (
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-          <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <div className="mt-4">
-            <Label htmlFor="image-upload" className="cursor-pointer">
-              <div className="flex items-center justify-center space-x-2">
-                <Upload className="w-4 h-4" />
-                <span>ইমেজ নির্বাচন করুন</span>
-              </div>
-            </Label>
-            <Input
-              id="image-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleFileUpload}
-              disabled={uploading}
-              className="hidden"
-            />
+        <div className="space-y-4">
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <div className="mt-4">
+              <Label htmlFor="image-upload" className="cursor-pointer">
+                <div className="flex items-center justify-center space-x-2">
+                  <Upload className="w-4 h-4" />
+                  <span>ইমেজ নির্বাচন করুন</span>
+                </div>
+              </Label>
+              <Input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                disabled={uploading}
+                className="hidden"
+              />
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              সর্বোচ্চ সাইজ: ১২০ KB
+            </p>
           </div>
-          <p className="text-sm text-gray-500 mt-2">
-            সর্বোচ্চ সাইজ: ১২০ KB
-          </p>
+          
+          <div className="text-center">
+            <p className="text-sm text-gray-600 mb-2">অথবা</p>
+            <ImageGallery onImageSelect={handleImageSelect} />
+          </div>
         </div>
       )}
       

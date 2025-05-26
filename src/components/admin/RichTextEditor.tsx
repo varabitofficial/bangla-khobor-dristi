@@ -16,7 +16,9 @@ import {
   Palette
 } from 'lucide-react';
 import { ImageUpload } from './ImageUpload';
+import { ImageGallery } from './ImageGallery';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface RichTextEditorProps {
   value: string;
@@ -53,8 +55,23 @@ export const RichTextEditor = ({ value, onChange, label = "কন্টেন্
   };
 
   const insertImage = (imageUrl: string) => {
-    insertText(`![ইমেজ](${imageUrl})`);
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    
+    const imageMarkdown = `![ইমেজ](${imageUrl})`;
+    const newText = value.substring(0, start) + imageMarkdown + value.substring(end);
+    
+    onChange(newText);
     setShowImageDialog(false);
+    
+    // Focus back to textarea
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + imageMarkdown.length, start + imageMarkdown.length);
+    }, 0);
   };
 
   const toolbarButtons = [
@@ -102,11 +119,29 @@ export const RichTextEditor = ({ value, onChange, label = "কন্টেন্
               <Image className="w-4 h-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>ইমেজ যোগ করুন</DialogTitle>
             </DialogHeader>
-            <ImageUpload onImageUploaded={insertImage} />
+            <Tabs defaultValue="upload" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="upload">নতুন আপলোড</TabsTrigger>
+                <TabsTrigger value="gallery">গ্যালারি থেকে নির্বাচন</TabsTrigger>
+              </TabsList>
+              <TabsContent value="upload" className="space-y-4">
+                <ImageUpload onImageUploaded={insertImage} />
+              </TabsContent>
+              <TabsContent value="gallery" className="space-y-4">
+                <ImageGallery 
+                  onImageSelect={insertImage}
+                  trigger={
+                    <div className="w-full p-8 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-gray-400">
+                      <p className="text-gray-600">গ্যালারি থেকে ইমেজ নির্বাচন করতে ক্লিক করুন</p>
+                    </div>
+                  }
+                />
+              </TabsContent>
+            </Tabs>
           </DialogContent>
         </Dialog>
 
