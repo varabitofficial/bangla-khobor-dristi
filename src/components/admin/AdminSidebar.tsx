@@ -23,7 +23,9 @@ import {
   Mail, 
   Megaphone,
   Settings,
-  LogOut
+  LogOut,
+  Tags,
+  Folder
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -43,6 +45,16 @@ const menuItems = [
     title: "ক্যাটেগরি",
     url: "/admin/categories", 
     icon: FolderTree,
+  },
+  {
+    title: "সাবক্যাটেগরি",
+    url: "/admin/subcategories",
+    icon: Folder,
+  },
+  {
+    title: "ট্যাগ",
+    url: "/admin/tags",
+    icon: Tags,
   },
   {
     title: "মন্তব্য",
