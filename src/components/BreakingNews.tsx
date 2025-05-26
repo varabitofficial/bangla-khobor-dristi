@@ -11,21 +11,23 @@ const BreakingNews = () => {
     <div className="bg-red-600 text-white py-2 overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="flex items-center">
-          <span className="bg-white text-red-600 px-3 py-1 text-sm font-bold mr-4 whitespace-nowrap">
+          <span className="bg-white text-red-600 px-3 py-1 text-sm font-bold mr-4 whitespace-nowrap flex-shrink-0 z-10">
             ব্রেকিং নিউজ
           </span>
-          <div className="flex animate-slide-left whitespace-nowrap">
-            {breakingNews.map((news, index) => (
-              <span key={index} className="mx-8 cursor-pointer hover:underline">
-                {news}
-              </span>
-            ))}
-            {/* Duplicate for seamless loop */}
-            {breakingNews.map((news, index) => (
-              <span key={`duplicate-${index}`} className="mx-8 cursor-pointer hover:underline">
-                {news}
-              </span>
-            ))}
+          <div className="flex-1 overflow-hidden">
+            <div className="flex animate-slide-left whitespace-nowrap pl-4">
+              {breakingNews.map((news, index) => (
+                <span key={index} className="mx-8 cursor-pointer hover:underline">
+                  {news}
+                </span>
+              ))}
+              {/* Duplicate for seamless loop */}
+              {breakingNews.map((news, index) => (
+                <span key={`duplicate-${index}`} className="mx-8 cursor-pointer hover:underline">
+                  {news}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
