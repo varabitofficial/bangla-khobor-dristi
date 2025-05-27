@@ -19,15 +19,16 @@ const Header = () => {
     return today.toLocaleDateString('bn-BD', options);
   };
 
-  // Get category by slug helper function
-  const getCategoryBySlug = (slug: string) => {
-    return categories?.find(cat => cat.slug === slug);
-  };
-
-  // Get the first few categories to display in navigation
+  // Get the first few categories to display in navigation, including politics
   const getNavigationCategories = () => {
     if (!categories) return [];
-    return categories.slice(0, 6); // Show first 6 categories
+    
+    // Always include politics if it exists
+    const politicsCategory = categories.find(cat => cat.slug === 'politics' || cat.name === 'রাজনীতি');
+    const otherCategories = categories.filter(cat => cat.slug !== 'politics' && cat.name !== 'রাজনীতি').slice(0, 5);
+    
+    const navCategories = politicsCategory ? [politicsCategory, ...otherCategories] : otherCategories.slice(0, 6);
+    return navCategories;
   };
 
   const navigationCategories = getNavigationCategories();

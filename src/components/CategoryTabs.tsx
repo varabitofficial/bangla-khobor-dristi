@@ -1,136 +1,105 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const CategoryTabs = () => {
-  const [activeTab, setActiveTab] = useState("বাংলাদেশ");
+  const [activeTab, setActiveTab] = useState<string>("");
 
-  const categories = ["বাংলাদেশ", "আন্তর্জাতিক", "ব্যবসা", "প্রযুক্তি"];
+  // Fetch categories from database
+  const { data: categories, isLoading: categoriesLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
 
-  const categoryNews = {
-    "বাংলাদেশ": {
-      main: {
-        id: "8",
-        title: "ঢাকায় নতুন উন্নয়ন প্রকল্প চালু",
-        excerpt: "ঢ্যাকার নগর উন্নয়নে নতুন প্রকল্প চালু হয়েছে। এতে রাজধানীর যানজট সমস্যা কমবে।",
-        image: "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=600&h=400&fit=crop"
-      },
-      related: [
-        {
-          id: "9",
-          title: "মেট্রো রেলের দ্বিতীয় লাইন নির্মাণ শুরু হবে আগামী মাসে",
-          date: "২৩ মে, ২০২৪"
-        },
-        {
-          id: "10",
-          title: "ফ্লাইওভার প্রকল্প: যানজট কমার প্রত্যাশা",
-          date: "২২ মে, ২০২৪"
-        },
-        {
-          id: "11",
-          title: "ঢাকা মহানগরীর পানি সমস্যা সমাধানে নতুন প্রকল্প",
-          date: "২১ মে, ২০২৪"
-        },
-        {
-          id: "12",
-          title: "পরিবেশ সংরক্ষণে ঢাকায় বড় প্রকল্প",
-          date: "২০ মে, ২০২৪"
-        }
-      ]
+      if (error) throw error;
+      return data;
     },
-    "আন্তর্জাতিক": {
-      main: {
-        id: "13",
-        title: "আন্তর্জাতিক সম্মেলনে নতুন চুক্তি স্বাক্ষর",
-        excerpt: "আন্তর্জাতিক একটি সম্মেলনে বাংলাদেশ গুরুত্বপূর্ণ চুক্তি স্বাক্ষর করেছে।",
-        image: "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=600&h=400&fit=crop"
-      },
-      related: [
-        {
-          id: "14", 
-          title: "আন্তর্জাতিক বাণিজ্যে নতুন চুক্তি",
-          date: "২৩ মে, ২০২৪"
-        },
-        {
-          id: "15",
-          title: "জাতিসংঘে বাংলাদেশের নতুন প্রতিনিধি নিয়োগ",
-          date: "২২ মে, ২০২৪"
-        },
-        {
-          id: "16",
-          title: "জলবায়ু পরিবর্তন নিয়ে আন্তর্জাতিক সম্মেলন",
-          date: "২১ মে, ২০২৪"
-        },
-        {
-          id: "17",
-          title: "প্রবাসী বাংলাদেশিদের অধিকার নিয়ে সম্মেলন",
-          date: "২০ মে, ২০২৪"
-        }
-      ]
+  });
+
+  // Fetch posts for the active category
+  const { data: categoryPosts, isLoading: postsLoading } = useQuery({
+    queryKey: ['category-posts', activeTab],
+    queryFn: async () => {
+      if (!activeTab) return null;
+      
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          categories (name, slug),
+          profiles (full_name)
+        `)
+        .eq('status', 'published')
+        .eq('categories.slug', activeTab)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      return data;
     },
-    "ব্যবসা": {
-      main: {
-        id: "18",
-        title: "স্টক মার্কেটে নতুন রেকর্ড",
-        excerpt: "দেশের স্টক মার্কেট ইতিহাসের সবচেয়ে উঁচু অবস্থানে পৌঁছেছে।",
-        image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&h=400&fit=crop"
-      },
-      related: [
-        {
-          id: "19",
-          title: "নতুন বৈদেশিক বিনিয়োগ: হাজার কোটি টাকা",
-          date: "২৩ মে, ২০২৪"
-        },
-        {
-          id: "20",
-          title: "রপ্তানি খাতে অভূতপূর্ব সাফল্য",
-          date: "২২ মে, ২০২৪"
-        },
-        {
-          id: "21",
-          title: "ব্যাংক খাতে নতুন নীতিমালা ঘোষণা",
-          date: "২১ মে, ২০২৪"
-        },
-        {
-          id: "22",
-          title: "ছোট ব্যবসায় নতুন ঋণ প্রকল্প চালু",
-          date: "২০ মে, ২০২৪"
-        }
-      ]
-    },
-    "প্রযুক্তি": {
-      main: {
-        id: "23",
-        title: "দেশে তৈরি হচ্ছে পঞ্চম প্রজন্মের মোবাইল নেটওয়ার্ক",
-        excerpt: "দেশের নিজস্ব প্রযুক্তিতে তৈরি হচ্ছে ৫জি নেটওয়ার্ক।",
-        image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=400&fit=crop"
-      },
-      related: [
-        {
-          id: "24",
-          title: "প্রযুক্তি শিক্ষায় নতুন প্রকল্প",
-          date: "২৩ মে, ২০২৪"
-        },
-        {
-          id: "25",
-          title: "আর্টিফিশিয়াল ইন্টেলিজেন্স গবেষণা কেন্দ্র স্থাপন",
-          date: "২২ মে, ২০২৪"
-        },
-        {
-          id: "26",
-          title: "বয়স্কদের জন্য নতুন প্রযুক্তি প্রশিক্ষণ",
-          date: "২১ মে, ২০২৪"
-        },
-        {
-          id: "27",
-          title: "প্রতিবন্ধী ব্যক্তিদের জন্য বিশেষ প্রযুক্তি উদ্ভাবন",
-          date: "২০ মে, ২০২৪"
-        }
-      ]
+    enabled: !!activeTab,
+  });
+
+  // Set default active tab when categories load
+  React.useEffect(() => {
+    if (categories && categories.length > 0 && !activeTab) {
+      setActiveTab(categories[0].slug);
     }
-  };
+  }, [categories, activeTab]);
 
-  const currentCategoryNews = categoryNews[activeTab as keyof typeof categoryNews];
+  // Fetch popular posts for sidebar
+  const { data: popularPosts } = useQuery({
+    queryKey: ['popular-posts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          categories (name)
+        `)
+        .eq('status', 'published')
+        .order('view_count', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (categoriesLoading) {
+    return (
+      <section className="container mx-auto px-4 py-12">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded mb-8"></div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <div className="h-64 bg-gray-200 rounded"></div>
+            </div>
+            <div className="h-64 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!categories || categories.length === 0) {
+    return (
+      <section className="container mx-auto px-4 py-12">
+        <div className="text-center py-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">কোন ক্যাটেগরি পাওয়া যায়নি</h2>
+          <p className="text-gray-600">অনুগ্রহ করে অ্যাডমিন প্যানেল থেকে ক্যাটেগরি তৈরি করুন।</p>
+        </div>
+      </section>
+    );
+  }
+
+  const mainPost = categoryPosts?.[0];
+  const relatedPosts = categoryPosts?.slice(1) || [];
 
   return (
     <section className="container mx-auto px-4 py-12">
@@ -141,69 +110,89 @@ const CategoryTabs = () => {
             <div className="flex overflow-x-auto">
               {categories.map((category) => (
                 <button
-                  key={category}
-                  onClick={() => setActiveTab(category)}
+                  key={category.id}
+                  onClick={() => setActiveTab(category.slug)}
                   className={`px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 ${
-                    activeTab === category
+                    activeTab === category.slug
                       ? "border-red-600 text-red-600"
                       : "border-transparent text-gray-600 hover:text-gray-900"
                   }`}
                 >
-                  {category}
+                  {category.name}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Main Content */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Featured Article */}
-            <div className="md:col-span-2">
-              <Link to={`/post/${currentCategoryNews.main.id}`} className="group block">
-                <div className="relative overflow-hidden rounded-lg">
-                  <img 
-                    src={currentCategoryNews.main.image} 
-                    alt={currentCategoryNews.main.title}
-                    className="w-full h-64 md:h-72 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                    <h3 className="text-xl font-bold mb-2 leading-tight group-hover:text-gray-200 transition-colors">
-                      {currentCategoryNews.main.title}
-                    </h3>
-                    <p className="text-sm text-gray-200 line-clamp-2">
-                      {currentCategoryNews.main.excerpt}
-                    </p>
+          {postsLoading ? (
+            <div className="animate-pulse">
+              <div className="h-64 bg-gray-200 rounded mb-4"></div>
+              <div className="space-y-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-4 bg-gray-200 rounded"></div>
+                ))}
+              </div>
+            </div>
+          ) : mainPost ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Featured Article */}
+              <div className="md:col-span-2">
+                <Link to={`/post/${mainPost.id}`} className="group block">
+                  <div className="relative overflow-hidden rounded-lg">
+                    <img 
+                      src={mainPost.featured_image || "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=600&h=400&fit=crop"} 
+                      alt={mainPost.title}
+                      className="w-full h-64 md:h-72 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                      <h3 className="text-xl font-bold mb-2 leading-tight group-hover:text-gray-200 transition-colors">
+                        {mainPost.title}
+                      </h3>
+                      <p className="text-sm text-gray-200 line-clamp-2">
+                        {mainPost.excerpt}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </div>
-
-            {/* Related Articles */}
-            <div className="space-y-4">
-              {currentCategoryNews.related.map((article) => (
-                <Link key={article.id} to={`/post/${article.id}`} className="group block">
-                  <article className="border-b border-gray-200 pb-4">
-                    <h3 className="text-gray-900 font-medium mb-1 group-hover:text-blue-600 transition-colors">
-                      {article.title}
-                    </h3>
-                    <p className="text-gray-500 text-xs">{article.date}</p>
-                  </article>
                 </Link>
-              ))}
+              </div>
+
+              {/* Related Articles */}
+              <div className="space-y-4">
+                {relatedPosts.map((article) => (
+                  <Link key={article.id} to={`/post/${article.id}`} className="group block">
+                    <article className="border-b border-gray-200 pb-4">
+                      <h3 className="text-gray-900 font-medium mb-1 group-hover:text-blue-600 transition-colors">
+                        {article.title}
+                      </h3>
+                      <p className="text-gray-500 text-xs">
+                        {new Date(article.created_at).toLocaleDateString('bn-BD')}
+                      </p>
+                    </article>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-16">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">এই ক্যাটেগরিতে কোন পোস্ট নেই</h3>
+              <p className="text-gray-600">শীঘ্রই নতুন পোস্ট যোগ করা হবে।</p>
+            </div>
+          )}
 
           {/* View All Link */}
-          <div className="mt-8 text-center">
-            <Link
-              to={`/category/${activeTab}`}
-              className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              আরো দেখুন
-              <span className="ml-2">→</span>
-            </Link>
-          </div>
+          {mainPost && (
+            <div className="mt-8 text-center">
+              <Link
+                to={`/category/${activeTab}`}
+                className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                আরো দেখুন
+                <span className="ml-2">→</span>
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Sidebar */}
@@ -211,46 +200,25 @@ const CategoryTabs = () => {
           <div className="bg-gray-50 p-6 rounded-lg mb-8">
             <h3 className="text-lg font-bold text-gray-900 mb-4">জনপ্রিয় সংবাদ</h3>
             <div className="space-y-4">
-              <Link to="/post/101" className="group block">
-                <article className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-400">০১</span>
-                  <h4 className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
-                    চট্টগ্রামে নতুন সাংস্কৃতিক কেন্দ্র উদ্বোধন
-                  </h4>
-                </article>
-              </Link>
-              <Link to="/post/102" className="group block">
-                <article className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-400">০২</span>
-                  <h4 className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
-                    নতুন শিল্প নীতি ঘোষণা করল সরকার
-                  </h4>
-                </article>
-              </Link>
-              <Link to="/post/103" className="group block">
-                <article className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-400">০৩</span>
-                  <h4 className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
-                    জাতীয় ক্রীড়া প্রতিযোগিতা শুরু হচ্ছে আগামী সপ্তাহে
-                  </h4>
-                </article>
-              </Link>
-              <Link to="/post/104" className="group block">
-                <article className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-400">০৪</span>
-                  <h4 className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
-                    প্রাকৃতিক দুর্যোগ মোকাবেলায় নতুন পদক্ষেপ
-                  </h4>
-                </article>
-              </Link>
-              <Link to="/post/105" className="group block">
-                <article className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-400">০৫</span>
-                  <h4 className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
-                    গ্রামীণ অঞ্চলে শিক্ষার মান উন্নয়নে বিশেষ প্রকল্প
-                  </h4>
-                </article>
-              </Link>
+              {popularPosts?.map((post, index) => (
+                <Link key={post.id} to={`/post/${post.id}`} className="group block">
+                  <article className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-gray-400">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <h4 className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
+                      {post.title}
+                    </h4>
+                  </article>
+                </Link>
+              )) || [...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <span className="text-lg font-bold text-gray-400">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <div className="h-4 bg-gray-200 animate-pulse rounded flex-1"></div>
+                </div>
+              ))}
             </div>
           </div>
 

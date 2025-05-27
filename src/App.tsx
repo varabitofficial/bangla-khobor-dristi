@@ -23,6 +23,12 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminNewsletter from "./pages/admin/AdminNewsletter";
 import AdminAds from "./pages/admin/AdminAds";
 import AdminSettings from "./pages/admin/AdminSettings";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Careers from "./pages/Careers";
+import Advertise from "./pages/Advertise";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +59,12 @@ const App = () => (
             <Route path="/admin/newsletter" element={<AdminNewsletter />} />
             <Route path="/admin/ads" element={<AdminAds />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/advertise" element={<Advertise />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

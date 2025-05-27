@@ -1,7 +1,10 @@
 
 import { Link } from "react-router-dom";
+import { useCategories } from "@/hooks/useCategories";
 
 const Footer = () => {
+  const { data: categories } = useCategories();
+
   return (
     <footer className="bg-gray-900 text-white pt-12 pb-6">
       <div className="container mx-auto px-4">
@@ -41,12 +44,22 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-lg mb-4">বিভাগসমূহ</h3>
             <ul className="space-y-2">
-              <li><Link to="/bangladesh" className="text-gray-400 hover:text-white transition-colors">বাংলাদেশ</Link></li>
-              <li><Link to="/international" className="text-gray-400 hover:text-white transition-colors">আন্তর্জাতিক</Link></li>
-              <li><Link to="/politics" className="text-gray-400 hover:text-white transition-colors">রাজনীতি</Link></li>
-              <li><Link to="/business" className="text-gray-400 hover:text-white transition-colors">ব্যবসা</Link></li>
-              <li><Link to="/technology" className="text-gray-400 hover:text-white transition-colors">প্রযুক্তি</Link></li>
-              <li><Link to="/sports" className="text-gray-400 hover:text-white transition-colors">খেলা</Link></li>
+              {categories?.slice(0, 6).map((category) => (
+                <li key={category.id}>
+                  <Link to={`/category/${category.slug}`} className="text-gray-400 hover:text-white transition-colors">
+                    {category.name}
+                  </Link>
+                </li>
+              )) || (
+                <>
+                  <li><Link to="/category/bangladesh" className="text-gray-400 hover:text-white transition-colors">বাংলাদেশ</Link></li>
+                  <li><Link to="/category/international" className="text-gray-400 hover:text-white transition-colors">আন্তর্জাতিক</Link></li>
+                  <li><Link to="/category/politics" className="text-gray-400 hover:text-white transition-colors">রাজনীতি</Link></li>
+                  <li><Link to="/category/business" className="text-gray-400 hover:text-white transition-colors">ব্যবসা</Link></li>
+                  <li><Link to="/category/technology" className="text-gray-400 hover:text-white transition-colors">প্রযুক্তি</Link></li>
+                  <li><Link to="/category/sports" className="text-gray-400 hover:text-white transition-colors">খেলা</Link></li>
+                </>
+              )}
             </ul>
           </div>
 
