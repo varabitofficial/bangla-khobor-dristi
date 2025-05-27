@@ -41,11 +41,25 @@ const VideosManagement = () => {
     },
   });
 
+  const getYoutubeThumbnail = (url: string) => {
+    const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    return videoId ? `https://img.youtube.com/vi/${videoId[1]}/maxresdefault.jpg` : '';
+  };
+
+  const handleVideoUrlChange = (url: string) => {
+    setFormData(prev => ({
+      ...prev,
+      video_url: url,
+      thumbnail: prev.thumbnail || getYoutubeThumbnail(url)
+    }));
+  };
+
   const saveMutation = useMutation({
     mutationFn: async (data: any) => {
       const videoData = {
         ...data,
-        author_id: user?.id
+        author_id: user?.id,
+        thumbnail: data.thumbnail || getYoutubeThumbnail(data.video_url)
       };
 
       if (editingVideo) {
@@ -175,19 +189,25 @@ const VideosManagement = () => {
                 <Input
                   id="video_url"
                   value={formData.video_url}
-                  onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                  onChange={(e) => handleVideoUrlChange(e.target.value)}
                   placeholder="https://www.youtube.com/watch?v=..."
                   required
                 />
+                <p className="text-sm text-gray-500 mt-1">YouTube URL থেকে থাম্বনেইল স্বয়ংক্রিয়ভাবে নেওয়া হবে</p>
               </div>
               <div>
-                <Label htmlFor="thumbnail">থাম্বনেইল URL</Label>
+                <Label htmlFor="thumbnail">থাম্বনেইল URL (ঐচ্ছিক)</Label>
                 <Input
                   id="thumbnail"
                   value={formData.thumbnail}
                   onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
-                  placeholder="থাম্বনেইলের URL"
+                  placeholder="কাস্টম থাম্বনেইলের URL"
                 />
+                {formData.thumbnail && (
+                  <div className="mt-2">
+                    <img src={formData.thumbnail} alt="thumbnail preview" className="w-32 h-20 object-cover rounded" />
+                  </div>
+                )}
               </div>
               <div className="flex space-x-4">
                 <Button type="submit" disabled={saveMutation.isPending}>
@@ -213,6 +233,7 @@ const VideosManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>থাম্বনেইল</TableHead>
                   <TableHead>শিরোনাম</TableHead>
                   <TableHead>লেখক</TableHead>
                   <TableHead>ভিউ</TableHead>
@@ -221,39 +242,47 @@ const VideosManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {videos?.map((video) => (
-                  <TableRow key={video.id}>
-                    <TableCell className="font-medium">{video.title}</TableCell>
-                    <TableCell>{video.profiles.full_name}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <Eye className="w-4 h-4 mr-1" />
-                        {video.view_count}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(video.created_at).toLocaleDateString('bn-BD')}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(video)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => deleteMutation.mutate(video.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {videos?.map((video) => {
+                  const thumbnailUrl = video.thumbnail || getYoutubeThumbnail(video.video_url);
+                  return (
+                    <TableRow key={video.id}>
+                      <TableCell>
+                        {thumbnailUrl && (
+                          <img src={thumbnailUrl} alt="thumbnail" className="w-16 h-10 object-cover rounded" />
+                        )}
+                      </TableCell>
+                      <TableCell className="font-medium">{video.title}</TableCell>
+                      <TableCell>{video.profiles.full_name}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <Eye className="w-4 h-4 mr-1" />
+                          {video.view_count || 0}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(video.created_at).toLocaleDateString('bn-BD')}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(video)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => deleteMutation.mutate(video.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}

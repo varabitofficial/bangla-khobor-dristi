@@ -6,6 +6,7 @@ import PostsManagement from '@/components/admin/PostsManagement';
 import CategoriesManagement from '@/components/admin/CategoriesManagement';
 import CommentsManagement from '@/components/admin/CommentsManagement';
 import VideosManagement from '@/components/admin/VideosManagement';
+import OpinionsManagement from '@/components/admin/OpinionsManagement';
 import UsersManagement from '@/components/admin/UsersManagement';
 import NewsletterManagement from '@/components/admin/NewsletterManagement';
 import AdsManagement from '@/components/admin/AdsManagement';
@@ -23,11 +24,12 @@ const AdminDashboard = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="posts" className="w-full">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="posts">পোস্ট</TabsTrigger>
               <TabsTrigger value="categories">ক্যাটেগরি</TabsTrigger>
               <TabsTrigger value="comments">মন্তব্য</TabsTrigger>
               <TabsTrigger value="videos">ভিডিও</TabsTrigger>
+              <TabsTrigger value="opinions">মতামত</TabsTrigger>
               <TabsTrigger value="users">ইউজার</TabsTrigger>
               <TabsTrigger value="newsletter">নিউজলেটার</TabsTrigger>
               <TabsTrigger value="ads">বিজ্ঞাপন</TabsTrigger>
@@ -47,6 +49,10 @@ const AdminDashboard = () => {
             
             <TabsContent value="videos">
               <VideosManagement />
+            </TabsContent>
+            
+            <TabsContent value="opinions">
+              <OpinionsManagement />
             </TabsContent>
             
             <TabsContent value="users">

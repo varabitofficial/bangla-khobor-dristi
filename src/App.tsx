@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import PostSingle from "./pages/PostSingle";
 import PostsArchive from "./pages/PostsArchive";
 import VideosArchive from "./pages/VideosArchive";
+import OpinionsArchive from "./pages/OpinionsArchive";
+import OpinionSingle from "./pages/OpinionSingle";
 import TagsArchive from "./pages/TagsArchive";
 import CategoryArchive from "./pages/CategoryArchive";
 import Auth from "./pages/Auth";
@@ -46,6 +48,8 @@ const App = () => (
             <Route path="/posts" element={<PostsArchive />} />
             <Route path="/category/:slug" element={<CategoryArchive />} />
             <Route path="/videos" element={<VideosArchive />} />
+            <Route path="/opinions" element={<OpinionsArchive />} />
+            <Route path="/opinion/:id" element={<OpinionSingle />} />
             <Route path="/tags" element={<TagsArchive />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<AdminDashboard />} />
