@@ -44,6 +44,21 @@ const PostSingle = () => {
     }
   }, [post?.id]);
 
+  const formatContent = (content: string) => {
+    return content
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/<u>(.*?)<\/u>/g, '<u>$1</u>')
+      .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold mb-4 mt-6">$1</h1>')
+      .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mb-3 mt-5">$1</h2>')
+      .replace(/^### (.*$)/gm, '<h3 class="text-xl font-bold mb-2 mt-4">$1</h3>')
+      .replace(/^- (.*$)/gm, '<li class="ml-4">$1</li>')
+      .replace(/^(\d+)\. (.*$)/gm, '<li class="ml-4">$2</li>')
+      .replace(/<span style="color: (#[0-9a-fA-F]{6})">(.*?)<\/span>/g, '<span style="color: $1">$2</span>')
+      .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-4" />')
+      .replace(/\n/g, '<br>');
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white font-bangla">
@@ -175,7 +190,9 @@ const PostSingle = () => {
             {/* Article Content */}
             <div 
               className="prose prose-lg max-w-none text-gray-800 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{
+                __html: formatContent(post.content)
+              }}
             />
 
             {/* Mid-content Ad */}
