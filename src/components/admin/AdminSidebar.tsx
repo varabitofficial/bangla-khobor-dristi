@@ -25,7 +25,8 @@ import {
   Settings,
   LogOut,
   Tags,
-  Folder
+  Folder,
+  MessageCircle
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -55,6 +56,11 @@ const menuItems = [
     title: "ট্যাগ",
     url: "/admin/tags",
     icon: Tags,
+  },
+  {
+    title: "মতামত ও বিশ্লেষণ",
+    url: "/admin/opinions",
+    icon: MessageCircle,
   },
   {
     title: "মন্তব্য",

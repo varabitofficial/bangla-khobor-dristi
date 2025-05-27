@@ -19,6 +19,7 @@ import AdminPosts from "./pages/admin/AdminPosts";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminSubcategories from "./pages/admin/AdminSubcategories";
 import AdminTags from "./pages/admin/AdminTags";
+import AdminOpinions from "./pages/admin/AdminOpinions";
 import AdminComments from "./pages/admin/AdminComments";
 import AdminVideos from "./pages/admin/AdminVideos";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/admin/categories" element={<AdminCategories />} />
             <Route path="/admin/subcategories" element={<AdminSubcategories />} />
             <Route path="/admin/tags" element={<AdminTags />} />
+            <Route path="/admin/opinions" element={<AdminOpinions />} />
             <Route path="/admin/comments" element={<AdminComments />} />
             <Route path="/admin/videos" element={<AdminVideos />} />
             <Route path="/admin/users" element={<AdminUsers />} />
