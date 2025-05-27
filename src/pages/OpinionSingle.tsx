@@ -4,7 +4,19 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Calendar, User } from 'lucide-react';
+import { Calendar } from 'lucide-react';
+
+type Opinion = {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  author_name: string;
+  author_role: string | null;
+  author_image: string | null;
+  created_at: string;
+  updated_at: string;
+};
 
 const OpinionSingle = () => {
   const { id } = useParams();
@@ -21,7 +33,7 @@ const OpinionSingle = () => {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as Opinion;
     },
     enabled: !!id,
   });

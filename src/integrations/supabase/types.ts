@@ -139,6 +139,45 @@ export type Database = {
         }
         Relationships: []
       }
+      opinions: {
+        Row: {
+          author_image: string | null
+          author_name: string
+          author_role: string | null
+          content: string
+          created_at: string
+          created_by: string | null
+          excerpt: string | null
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_image?: string | null
+          author_name: string
+          author_role?: string | null
+          content: string
+          created_at?: string
+          created_by?: string | null
+          excerpt?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_image?: string | null
+          author_name?: string
+          author_role?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          excerpt?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       post_tags: {
         Row: {
           created_at: string

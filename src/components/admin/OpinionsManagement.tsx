@@ -10,12 +10,24 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2 } from 'lucide-react';
+
+type Opinion = {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  author_name: string;
+  author_role: string | null;
+  author_image: string | null;
+  created_at: string;
+  updated_at: string;
+};
 
 const OpinionsManagement = () => {
   const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
-  const [editingOpinion, setEditingOpinion] = useState(null);
+  const [editingOpinion, setEditingOpinion] = useState<Opinion | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     excerpt: '',
@@ -36,7 +48,7 @@ const OpinionsManagement = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as Opinion[];
     },
   });
 
@@ -115,13 +127,13 @@ const OpinionsManagement = () => {
     setShowForm(false);
   };
 
-  const handleEdit = (opinion: any) => {
+  const handleEdit = (opinion: Opinion) => {
     setFormData({
       title: opinion.title,
       excerpt: opinion.excerpt || '',
       content: opinion.content,
       author_name: opinion.author_name,
-      author_role: opinion.author_role,
+      author_role: opinion.author_role || '',
       author_image: opinion.author_image || ''
     });
     setEditingOpinion(opinion);

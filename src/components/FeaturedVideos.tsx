@@ -1,8 +1,29 @@
 
-import { Link } from "react-router-dom";
-import { Clock, Calendar } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Play, Eye, Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+type Video = {
+  id: string;
+  title: string;
+  description: string | null;
+  video_url: string;
+  thumbnail: string | null;
+  view_count: number | null;
+  created_at: string;
+  published_at: string | null;
+};
+
+// Function to extract YouTube video ID and generate thumbnail
+const getYouTubeThumbnail = (url: string) => {
+  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const match = url.match(regex);
+  if (match) {
+    return `https://img.youtube.com/vi/${match[1]}/maxresdefault.jpg`;
+  }
+  return null;
+};
 
 const FeaturedVideos = () => {
   const { data: videos, isLoading } = useQuery({
@@ -10,39 +31,33 @@ const FeaturedVideos = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('videos')
-        .select(`
-          *,
-          profiles (full_name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
-        .limit(3);
+        .limit(4);
 
       if (error) throw error;
-      return data;
+      return data as Video[];
     },
   });
 
-  const getYoutubeThumbnail = (url: string) => {
-    const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
-    return videoId ? `https://img.youtube.com/vi/${videoId[1]}/maxresdefault.jpg` : null;
-  };
-
   if (isLoading) {
     return (
-      <section className="container mx-auto px-4 py-12 bg-gray-50">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">বিশেষ ভিডিও</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-white rounded-lg border border-gray-200">
-              <div className="w-full h-48 bg-gray-200 animate-pulse rounded-t-lg"></div>
-              <div className="p-4 space-y-3">
-                <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
+      <section className="bg-gray-50 py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900">ভিডিও</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg overflow-hidden shadow-sm">
+                <div className="aspect-video bg-gray-200 animate-pulse"></div>
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
+                  <div className="h-3 bg-gray-200 animate-pulse rounded w-3/4"></div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
     );
@@ -50,72 +65,72 @@ const FeaturedVideos = () => {
 
   if (!videos || videos.length === 0) {
     return (
-      <section className="container mx-auto px-4 py-12 bg-gray-50">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">বিশেষ ভিডিও</h2>
-          <Link to="/videos" className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2">
-            সব দেখুন
-            <span>→</span>
-          </Link>
-        </div>
-        <div className="text-center py-8">
-          <p className="text-gray-600">কোন ভিডিও পাওয়া যায়নি।</p>
+      <section className="bg-gray-50 py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900">ভিডিও</h2>
+            <Link to="/videos" className="text-blue-600 hover:text-blue-800 font-medium">
+              আরো ভিডিও →
+            </Link>
+          </div>
+          <div className="text-center py-8">
+            <p className="text-gray-600">কোন ভিডিও পাওয়া যায়নি।</p>
+          </div>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="container mx-auto px-4 py-12 bg-gray-50">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900">বিশেষ ভিডিও</h2>
-        <Link to="/videos" className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2">
-          সব দেখুন
-          <span>→</span>
-        </Link>
-      </div>
+    <section className="bg-gray-50 py-12">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900">ভিডিও</h2>
+          <Link to="/videos" className="text-blue-600 hover:text-blue-800 font-medium">
+            আরো ভিডিও →
+          </Link>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {videos.map((video) => {
-          const thumbnailUrl = video.thumbnail || getYoutubeThumbnail(video.video_url) || "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=400&h=240&fit=crop";
-          
-          return (
-            <Link key={video.id} to={`/video/${video.id}`} className="group block">
-              <article className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300">
-                <div className="relative overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {videos.map((video) => {
+            const thumbnail = video.thumbnail || getYouTubeThumbnail(video.video_url);
+            
+            return (
+              <div key={video.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+                <div className="relative aspect-video">
                   <img 
-                    src={thumbnailUrl} 
+                    src={thumbnail || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=225&fit=crop"}
                     alt={video.title}
-                    className="w-full h-48 lg:h-56 object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="bg-black bg-opacity-60 p-4 rounded-full">
-                      <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"></path>
-                      </svg>
-                    </div>
+                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Play className="w-12 h-12 text-white" />
                   </div>
                 </div>
-                
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2 leading-tight group-hover:text-blue-600 transition-colors">
+                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
                     {video.title}
                   </h3>
-                  <div className="flex justify-between items-center text-xs text-gray-500">
+                  {video.description && (
+                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                      {video.description}
+                    </p>
+                  )}
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-3 h-3" />
+                      <span>{video.view_count || 0}</span>
+                    </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
                       <span>{new Date(video.created_at).toLocaleDateString('bn-BD')}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      <span>{video.view_count || 0} দেখা হয়েছে</span>
-                    </div>
                   </div>
                 </div>
-              </article>
-            </Link>
-          );
-        })}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

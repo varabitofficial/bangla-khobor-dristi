@@ -7,7 +7,19 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Search, Calendar } from 'lucide-react';
+import { Search, Calendar } from 'lucide-react';
+
+type Opinion = {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  author_name: string;
+  author_role: string | null;
+  author_image: string | null;
+  created_at: string;
+  updated_at: string;
+};
 
 const OpinionsArchive = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,7 +44,7 @@ const OpinionsArchive = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      return data as Opinion[];
     },
   });
 

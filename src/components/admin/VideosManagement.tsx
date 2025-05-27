@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,12 +10,33 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, ExternalLink } from 'lucide-react';
+
+type Video = {
+  id: string;
+  title: string;
+  description: string | null;
+  video_url: string;
+  thumbnail: string | null;
+  view_count: number | null;
+  created_at: string;
+  published_at: string | null;
+};
+
+// Function to extract YouTube video ID and generate thumbnail
+const getYouTubeThumbnail = (url: string) => {
+  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const match = url.match(regex);
+  if (match) {
+    return `https://img.youtube.com/vi/${match[1]}/maxresdefault.jpg`;
+  }
+  return null;
+};
 
 const VideosManagement = () => {
   const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
-  const [editingVideo, setEditingVideo] = useState(null);
+  const [editingVideo, setEditingVideo] = useState<Video | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -25,41 +46,35 @@ const VideosManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Auto-generate thumbnail when video URL changes
+  useEffect(() => {
+    if (formData.video_url && !formData.thumbnail) {
+      const autoThumbnail = getYouTubeThumbnail(formData.video_url);
+      if (autoThumbnail) {
+        setFormData(prev => ({ ...prev, thumbnail: autoThumbnail }));
+      }
+    }
+  }, [formData.video_url, formData.thumbnail]);
+
   const { data: videos, isLoading } = useQuery({
     queryKey: ['admin-videos'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('videos')
-        .select(`
-          *,
-          profiles (full_name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as Video[];
     },
   });
-
-  const getYoutubeThumbnail = (url: string) => {
-    const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
-    return videoId ? `https://img.youtube.com/vi/${videoId[1]}/maxresdefault.jpg` : '';
-  };
-
-  const handleVideoUrlChange = (url: string) => {
-    setFormData(prev => ({
-      ...prev,
-      video_url: url,
-      thumbnail: prev.thumbnail || getYoutubeThumbnail(url)
-    }));
-  };
 
   const saveMutation = useMutation({
     mutationFn: async (data: any) => {
       const videoData = {
         ...data,
         author_id: user?.id,
-        thumbnail: data.thumbnail || getYoutubeThumbnail(data.video_url)
+        published_at: new Date().toISOString()
       };
 
       if (editingVideo) {
@@ -118,12 +133,17 @@ const VideosManagement = () => {
   });
 
   const resetForm = () => {
-    setFormData({ title: '', description: '', video_url: '', thumbnail: '' });
+    setFormData({
+      title: '',
+      description: '',
+      video_url: '',
+      thumbnail: ''
+    });
     setEditingVideo(null);
     setShowForm(false);
   };
 
-  const handleEdit = (video: any) => {
+  const handleEdit = (video: Video) => {
     setFormData({
       title: video.title,
       description: video.description || '',
@@ -189,25 +209,22 @@ const VideosManagement = () => {
                 <Input
                   id="video_url"
                   value={formData.video_url}
-                  onChange={(e) => handleVideoUrlChange(e.target.value)}
-                  placeholder="https://www.youtube.com/watch?v=..."
+                  onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                  placeholder="YouTube ভিডিও URL"
                   required
                 />
-                <p className="text-sm text-gray-500 mt-1">YouTube URL থেকে থাম্বনেইল স্বয়ংক্রিয়ভাবে নেওয়া হবে</p>
               </div>
               <div>
-                <Label htmlFor="thumbnail">থাম্বনেইল URL (ঐচ্ছিক)</Label>
+                <Label htmlFor="thumbnail">থাম্বনেইল URL</Label>
                 <Input
                   id="thumbnail"
                   value={formData.thumbnail}
                   onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
-                  placeholder="কাস্টম থাম্বনেইলের URL"
+                  placeholder="থাম্বনেইল URL (YouTube থেকে স্বয়ংক্রিয় হবে)"
                 />
-                {formData.thumbnail && (
-                  <div className="mt-2">
-                    <img src={formData.thumbnail} alt="thumbnail preview" className="w-32 h-20 object-cover rounded" />
-                  </div>
-                )}
+                <p className="text-sm text-gray-500 mt-1">
+                  YouTube ভিডিওর জন্য থাম্বনেইল স্বয়ংক্রিয়ভাবে তৈরি হবে
+                </p>
               </div>
               <div className="flex space-x-4">
                 <Button type="submit" disabled={saveMutation.isPending}>
@@ -235,7 +252,6 @@ const VideosManagement = () => {
                 <TableRow>
                   <TableHead>থাম্বনেইল</TableHead>
                   <TableHead>শিরোনাম</TableHead>
-                  <TableHead>লেখক</TableHead>
                   <TableHead>ভিউ</TableHead>
                   <TableHead>তারিখ</TableHead>
                   <TableHead>অ্যাকশন</TableHead>
@@ -243,20 +259,22 @@ const VideosManagement = () => {
               </TableHeader>
               <TableBody>
                 {videos?.map((video) => {
-                  const thumbnailUrl = video.thumbnail || getYoutubeThumbnail(video.video_url);
+                  const thumbnail = video.thumbnail || getYouTubeThumbnail(video.video_url);
+                  
                   return (
                     <TableRow key={video.id}>
                       <TableCell>
-                        {thumbnailUrl && (
-                          <img src={thumbnailUrl} alt="thumbnail" className="w-16 h-10 object-cover rounded" />
-                        )}
+                        <img 
+                          src={thumbnail || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=80&h=45&fit=crop"}
+                          alt={video.title}
+                          className="w-20 h-12 object-cover rounded"
+                        />
                       </TableCell>
                       <TableCell className="font-medium">{video.title}</TableCell>
-                      <TableCell>{video.profiles.full_name}</TableCell>
                       <TableCell>
-                        <div className="flex items-center">
-                          <Eye className="w-4 h-4 mr-1" />
-                          {video.view_count || 0}
+                        <div className="flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          <span>{video.view_count || 0}</span>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -264,6 +282,13 @@ const VideosManagement = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(video.video_url, '_blank')}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"

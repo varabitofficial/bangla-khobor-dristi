@@ -4,6 +4,18 @@ import { User, Calendar } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+type Opinion = {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  author_name: string;
+  author_role: string | null;
+  author_image: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 const OpinionSection = () => {
   const { data: opinions, isLoading } = useQuery({
     queryKey: ['featured-opinions'],
@@ -15,7 +27,7 @@ const OpinionSection = () => {
         .limit(3);
 
       if (error) throw error;
-      return data;
+      return data as Opinion[];
     },
   });
 
