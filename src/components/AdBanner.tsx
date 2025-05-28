@@ -35,21 +35,21 @@ const AdBanner = ({ location = 'homepage', className = "" }: AdBannerProps) => {
     );
   }
 
-  // Show the first active ad for this location
-  const ad = ads[0];
+  // Show random ad from available ads for this location
+  const randomAd = ads[Math.floor(Math.random() * ads.length)];
 
   return (
     <div className={`container mx-auto px-4 py-8 ${className}`}>
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
         <a 
-          href={ad.link_url} 
+          href={randomAd.link_url} 
           target="_blank" 
           rel="noopener noreferrer"
           className="block hover:opacity-90 transition-opacity"
         >
           <img 
-            src={ad.image_url} 
-            alt={ad.title}
+            src={randomAd.image_url} 
+            alt={randomAd.title}
             className="w-full h-auto max-h-[200px] object-contain"
           />
         </a>

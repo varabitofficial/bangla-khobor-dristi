@@ -90,15 +90,10 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="border-t border-gray-800 pt-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm mb-4 md:mb-0">
+          <div className="text-center">
+            <p className="text-gray-400 text-sm">
               &copy; ২০২৪ NewsViewBD. সর্বস্বত্ব সংরক্ষিত।
             </p>
-            <div className="flex gap-3">
-              <a href="#" className="text-gray-400 hover:text-white">
-                <img src="/placeholder.svg" alt="Payment Method" className="h-8" />
-              </a>
-            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Search, User, Calendar, X } from "lucide-react";
+import { Search, Calendar, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCategories } from "@/hooks/useCategories";
 import { useSearch } from "@/hooks/useSearch";
@@ -100,7 +100,7 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Search and User Actions */}
+          {/* Search */}
           <div className="flex items-center gap-4">
             <div className="relative hidden md:block">
               <form onSubmit={handleSearchSubmit}>
@@ -132,10 +132,6 @@ const Header = () => {
                 />
               )}
             </div>
-            
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <User className="w-5 h-5 text-gray-600" />
-            </button>
 
             {/* Mobile Menu Toggle */}
             <button
