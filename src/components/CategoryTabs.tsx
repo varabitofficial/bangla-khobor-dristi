@@ -1,8 +1,8 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import AdBanner from "@/components/AdBanner";
 
 const CategoryTabs = () => {
   const [activeTab, setActiveTab] = useState<string>("");
@@ -222,13 +222,8 @@ const CategoryTabs = () => {
             </div>
           </div>
 
-          {/* Ad banner in sidebar */}
-          <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-            <div className="text-gray-500">
-              <div className="text-base font-medium mb-2">বিজ্ঞাপন</div>
-              <div className="text-xs">Ad Space Available</div>
-            </div>
-          </div>
+          {/* Sidebar Ad Banner */}
+          <AdBanner location="sidebar" className="p-0" />
         </div>
       </div>
     </section>
