@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CommentSection from '@/components/CommentSection';
-import { Calendar, Eye } from 'lucide-react';
+import { Calendar, Eye, Play } from 'lucide-react';
 import { useEffect } from 'react';
 
 type Video = {
@@ -48,10 +48,9 @@ const VideoSingle = () => {
           profiles (full_name)
         `)
         .eq('id', id)
-        .maybeSingle();
+        .single();
 
       if (error) throw error;
-      if (!data) throw new Error('Video not found');
       return data as Video;
     },
     enabled: !!id,

@@ -16,8 +16,6 @@ const PostSingle = () => {
   const { data: post, isLoading, error } = useQuery({
     queryKey: ['post', id],
     queryFn: async () => {
-      if (!id) throw new Error('Post ID is required');
-      
       const { data, error } = await supabase
         .from('posts')
         .select(`
@@ -31,10 +29,9 @@ const PostSingle = () => {
         `)
         .eq('id', id)
         .eq('status', 'published')
-        .maybeSingle();
+        .single();
 
       if (error) throw error;
-      if (!data) throw new Error('Post not found');
       return data;
     },
     enabled: !!id,
@@ -200,7 +197,7 @@ const PostSingle = () => {
 
             {/* Mid-content Ad */}
             <div className="my-12">
-              <AdBanner location="post-middle" />
+              <AdBanner />
             </div>
 
             {/* Article Footer */}
@@ -227,7 +224,7 @@ const PostSingle = () => {
 
           {/* Post-comments Ad */}
           <div className="my-12">
-            <AdBanner location="post-bottom" />
+            <AdBanner />
           </div>
 
           {/* Related News */}

@@ -15,7 +15,7 @@ const Index = () => {
     <div className="min-h-screen bg-white font-bangla">
       <Header />
       <BreakingNews />
-      <main className="max-w-7xl mx-auto px-4">
+      <main>
         <HeroSection />
         <LatestNews />
         <AdBanner />

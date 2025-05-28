@@ -31,10 +31,9 @@ const OpinionSingle = () => {
         .from('opinions')
         .select('*')
         .eq('id', id)
-        .maybeSingle();
+        .single();
 
       if (error) throw error;
-      if (!data) throw new Error('Opinion not found');
       return data as Opinion;
     },
     enabled: !!id,

@@ -1,7 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Link } from 'react-router-dom';
 
 const BreakingNews = () => {
   const { data: latestNews } = useQuery({
@@ -21,12 +20,12 @@ const BreakingNews = () => {
 
   // Fallback to dummy data if no news available
   const newsItems = latestNews && latestNews.length > 0 
-    ? latestNews
+    ? latestNews.map(post => post.title)
     : [
-        { id: '1', title: "সরকারি নতুন নীতি ঘোষণা: শিক্ষাক্ষেত্রে বড় পরিবর্তন আসছে" },
-        { id: '2', title: "জলবায়ু পরিবর্তন: বাংলাদেশে নতুন প্রভাব দেখা দিচ্ছে" },
-        { id: '3', title: "অর্থনৈতিক প্রবৃদ্ধি: চলতি বছরে ৮% লক্ষ্যমাত্রা অর্জনের সম্ভাবনা" },
-        { id: '4', title: "প্রযুক্তি খাতে নতুন বিনিয়োগ: স্টার্টআপদের জন্য সুযোগ সৃষ্টি" }
+        "সরকারি নতুন নীতি ঘোষণা: শিক্ষাক্ষেত্রে বড় পরিবর্তন আসছে",
+        "জলবায়ু পরিবর্তন: বাংলাদেশে নতুন প্রভাব দেখা দিচ্ছে",
+        "অর্থনৈতিক প্রবৃদ্ধি: চলতি বছরে ৮% লক্ষ্যমাত্রা অর্জনের সম্ভাবনা",
+        "প্রযুক্তি খাতে নতুন বিনিয়োগ: স্টার্টআপদের জন্য সুযোগ সৃষ্টি"
       ];
 
   return (
@@ -39,23 +38,15 @@ const BreakingNews = () => {
           <div className="flex-1 overflow-hidden">
             <div className="flex animate-slide-left whitespace-nowrap pl-4">
               {newsItems.map((news, index) => (
-                <Link 
-                  key={index} 
-                  to={`/post/${news.id}`}
-                  className="mx-8 cursor-pointer hover:underline"
-                >
-                  {news.title}
-                </Link>
+                <span key={index} className="mx-8 cursor-pointer hover:underline">
+                  {news}
+                </span>
               ))}
               {/* Duplicate for seamless loop */}
               {newsItems.map((news, index) => (
-                <Link 
-                  key={`duplicate-${index}`} 
-                  to={`/post/${news.id}`}
-                  className="mx-8 cursor-pointer hover:underline"
-                >
-                  {news.title}
-                </Link>
+                <span key={`duplicate-${index}`} className="mx-8 cursor-pointer hover:underline">
+                  {news}
+                </span>
               ))}
             </div>
           </div>
