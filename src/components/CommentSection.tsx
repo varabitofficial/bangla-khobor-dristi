@@ -24,7 +24,7 @@ const CommentItem = ({ comment, postId, depth = 0 }: CommentItemProps) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyContent, setReplyContent] = useState('');
   const { user } = useAuth();
-  const { mutate: createComment, isPending } = useCreateComment();
+  const { mutate: createComment, isPending: isSubmitting } = useCreateComment();
 
   const handleReply = () => {
     if (!replyContent.trim()) return;
@@ -98,9 +98,9 @@ const CommentItem = ({ comment, postId, depth = 0 }: CommentItemProps) => {
                 <Button 
                   onClick={handleReply} 
                   size="sm"
-                  disabled={isPending || !replyContent.trim()}
+                  disabled={isSubmitting || !replyContent.trim()}
                 >
-                  {isPending ? 'পোস্ট হচ্ছে...' : 'উত্তর দিন'}
+                  {isSubmitting ? 'পোস্ট হচ্ছে...' : 'উত্তর দিন'}
                 </Button>
                 <Button 
                   variant="outline" 
@@ -135,7 +135,7 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
   const [newComment, setNewComment] = useState('');
   const { user } = useAuth();
   const { data: comments, isLoading } = useComments(postId);
-  const { mutate: createComment, isPending } = useCreateComment();
+  const { mutate: createComment, isPending: isSubmitting } = useCreateComment();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,8 +166,8 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
             placeholder="আপনার মতামত লিখুন..."
             className="min-h-[120px] mb-4"
           />
-          <Button type="submit" disabled={isPending || !newComment.trim()}>
-            {isPending ? 'পোস্ট হচ্ছে...' : 'মতামত দিন'}
+          <Button type="submit" disabled={isSubmitting || !newComment.trim()}>
+            {isSubmitting ? 'পোস্ট হচ্ছে...' : 'মতামত দিন'}
           </Button>
           <p className="text-sm text-gray-500 mt-2">
             আপনার মতামত অনুমোদনের পর প্রকাশিত হবে।
