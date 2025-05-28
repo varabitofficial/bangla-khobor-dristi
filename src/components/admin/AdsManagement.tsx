@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2 } from 'lucide-react';
+import { ImageUpload } from './ImageUpload';
 
 const AdsManagement = () => {
   const [showForm, setShowForm] = useState(false);
@@ -127,6 +127,10 @@ const AdsManagement = () => {
     saveMutation.mutate(formData);
   };
 
+  const handleImageUploaded = (url: string) => {
+    setFormData({ ...formData, image_url: url });
+  };
+
   const locationLabels = {
     homepage: 'হোমপেজ',
     sidebar: 'সাইডবার',
@@ -162,13 +166,10 @@ const AdsManagement = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="image_url">ইমেজ URL *</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="বিজ্ঞাপনের ইমেজ URL"
-                  required
+                <ImageUpload
+                  onImageUploaded={handleImageUploaded}
+                  currentImage={formData.image_url}
+                  label="বিজ্ঞাপনের ইমেজ *"
                 />
               </div>
               <div>
