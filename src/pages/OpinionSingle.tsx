@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import CommentSection from '@/components/CommentSection';
 import { Calendar } from 'lucide-react';
 
 type Opinion = {
@@ -121,6 +122,9 @@ const OpinionSingle = () => {
               dangerouslySetInnerHTML={{ __html: opinion.content.replace(/\n/g, '<br>') }}
             />
           </div>
+
+          {/* Comments Section */}
+          <CommentSection postId={opinion.id} />
         </article>
       </main>
       

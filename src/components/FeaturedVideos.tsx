@@ -96,7 +96,7 @@ const FeaturedVideos = () => {
             const thumbnail = video.thumbnail || getYouTubeThumbnail(video.video_url);
             
             return (
-              <div key={video.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+              <Link key={video.id} to={`/video/${video.id}`} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
                 <div className="relative aspect-video">
                   <img 
                     src={thumbnail || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=225&fit=crop"}
@@ -127,7 +127,7 @@ const FeaturedVideos = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

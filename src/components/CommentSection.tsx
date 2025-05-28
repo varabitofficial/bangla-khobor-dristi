@@ -5,7 +5,7 @@ import { useComments, useCreateComment } from '@/hooks/useComments';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageCircle, Reply, User } from 'lucide-react';
+import { MessageCircle, Reply, User, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { bn } from 'date-fns/locale';
@@ -41,6 +41,9 @@ const CommentItem = ({ comment, postId, depth = 0 }: CommentItemProps) => {
     });
   };
 
+  const isOwnComment = user?.id === comment.user_id;
+  const isPending = !comment.is_approved;
+
   return (
     <div className={`${depth > 0 ? 'ml-8 pt-4 border-l-2 border-gray-100 pl-4' : ''}`}>
       <div className="flex gap-3">
@@ -52,7 +55,7 @@ const CommentItem = ({ comment, postId, depth = 0 }: CommentItemProps) => {
         </Avatar>
         
         <div className="flex-1">
-          <div className="bg-gray-50 rounded-lg p-3">
+          <div className={`bg-gray-50 rounded-lg p-3 ${isPending && isOwnComment ? 'border border-yellow-300 bg-yellow-50' : ''}`}>
             <div className="flex items-center gap-2 mb-1">
               <span className="font-medium text-sm">{comment.profiles?.full_name}</span>
               <span className="text-xs text-gray-500">
@@ -61,6 +64,12 @@ const CommentItem = ({ comment, postId, depth = 0 }: CommentItemProps) => {
                   locale: bn 
                 })}
               </span>
+              {isPending && isOwnComment && (
+                <div className="flex items-center gap-1 text-xs text-yellow-600">
+                  <Clock className="h-3 w-3" />
+                  <span>অনুমোদনের অপেক্ষায়</span>
+                </div>
+              )}
             </div>
             <p className="text-gray-800">{comment.content}</p>
           </div>
@@ -160,6 +169,9 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
           <Button type="submit" disabled={isPending || !newComment.trim()}>
             {isPending ? 'পোস্ট হচ্ছে...' : 'মতামত দিন'}
           </Button>
+          <p className="text-sm text-gray-500 mt-2">
+            আপনার মতামত অনুমোদনের পর প্রকাশিত হবে।
+          </p>
         </form>
       ) : (
         <div className="mb-8 p-4 bg-gray-50 rounded-lg text-center">

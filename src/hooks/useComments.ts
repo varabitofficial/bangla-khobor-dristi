@@ -12,16 +12,26 @@ export const useComments = (postId: string) => {
   return useQuery({
     queryKey: ['comments', postId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      let query = supabase
         .from('comments')
         .select(`
           *,
           profiles (full_name, avatar_url)
         `)
         .eq('post_id', postId)
-        .eq('is_approved', true)
         .order('created_at', { ascending: true });
 
+      // If user is logged in, show approved comments + their own pending comments
+      if (user) {
+        query = query.or(`is_approved.eq.true,and(user_id.eq.${user.id},is_approved.eq.false)`);
+      } else {
+        // If not logged in, only show approved comments
+        query = query.eq('is_approved', true);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
 
       // Organize comments into nested structure

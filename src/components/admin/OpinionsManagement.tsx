@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import { ImageUpload } from './ImageUpload';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 
 type Opinion = {
@@ -153,6 +154,10 @@ const OpinionsManagement = () => {
     saveMutation.mutate(formData);
   };
 
+  const handleImageUploaded = (url: string) => {
+    setFormData({ ...formData, author_image: url });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -223,12 +228,10 @@ const OpinionsManagement = () => {
                 </div>
               </div>
               <div>
-                <Label htmlFor="author_image">লেখকের ছবির URL</Label>
-                <Input
-                  id="author_image"
-                  value={formData.author_image}
-                  onChange={(e) => setFormData({ ...formData, author_image: e.target.value })}
-                  placeholder="লেখকের ছবির URL"
+                <ImageUpload
+                  onImageUploaded={handleImageUploaded}
+                  currentImage={formData.author_image}
+                  label="লেখকের ছবি"
                 />
               </div>
               <div className="flex space-x-4">
