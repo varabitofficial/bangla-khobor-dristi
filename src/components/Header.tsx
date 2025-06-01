@@ -13,7 +13,7 @@ const Header = () => {
   const [searchInput, setSearchInput] = useState('');
   const { data: categories } = useCategories();
   const { searchResults, isLoading, isSearching, performSearch, clearSearch } = useSearch();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   // Check if user has admin or editor role
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -38,6 +38,10 @@ const Header = () => {
   }, [user]);
 
   const canAccessDashboard = userRole === 'admin' || userRole === 'editor';
+
+  const handleLogout = async () => {
+    await signOut();
+  };
 
   const getCurrentDate = () => {
     const today = new Date();
@@ -98,10 +102,21 @@ const Header = () => {
               <span>{getCurrentDate()}</span>
             </div>
             <div className="flex gap-4">
-              {canAccessDashboard && (
-                <Link to="/admin" className="hover:text-black transition-colors">ড্যাশবোর্ড</Link>
+              {user ? (
+                <>
+                  {canAccessDashboard && (
+                    <Link to="/admin" className="hover:text-black transition-colors">ড্যাশবোর্ড</Link>
+                  )}
+                  <button 
+                    onClick={handleLogout}
+                    className="hover:text-black transition-colors"
+                  >
+                    লগআউট
+                  </button>
+                </>
+              ) : (
+                <Link to="/login" className="hover:text-black transition-colors">লগইন</Link>
               )}
-              <Link to="/login" className="hover:text-black transition-colors">লগইন</Link>
             </div>
           </div>
         </div>
