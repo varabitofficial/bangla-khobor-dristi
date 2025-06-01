@@ -1,10 +1,10 @@
-
-import { useState } from "react";
+import React, { useState } from "react";
 import { Search, Calendar, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCategories } from "@/hooks/useCategories";
 import { useSearch } from "@/hooks/useSearch";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import SearchResults from "./SearchResults";
 import UserMenu from "./UserMenu";
 
