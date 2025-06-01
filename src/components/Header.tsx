@@ -1,16 +1,43 @@
 
 import { useState } from "react";
-import { Search, User, Calendar, X } from "lucide-react";
+import { Search, Calendar, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCategories } from "@/hooks/useCategories";
 import { useSearch } from "@/hooks/useSearch";
+import { useAuth } from "@/hooks/useAuth";
 import SearchResults from "./SearchResults";
+import UserMenu from "./UserMenu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const { data: categories } = useCategories();
   const { searchResults, isLoading, isSearching, performSearch, clearSearch } = useSearch();
+  const { user } = useAuth();
+
+  // Check if user has admin or editor role
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  // Fetch user role when user changes
+  React.useEffect(() => {
+    const fetchUserRole = async () => {
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        
+        setUserRole(profile?.role || null);
+      } else {
+        setUserRole(null);
+      }
+    };
+
+    fetchUserRole();
+  }, [user]);
+
+  const canAccessDashboard = userRole === 'admin' || userRole === 'editor';
 
   const getCurrentDate = () => {
     const today = new Date();
@@ -71,7 +98,9 @@ const Header = () => {
               <span>{getCurrentDate()}</span>
             </div>
             <div className="flex gap-4">
-              <Link to="/subscribe" className="hover:text-black transition-colors">সাবস্ক্রাইব</Link>
+              {canAccessDashboard && (
+                <Link to="/admin" className="hover:text-black transition-colors">ড্যাশবোর্ড</Link>
+              )}
               <Link to="/login" className="hover:text-black transition-colors">লগইন</Link>
             </div>
           </div>
@@ -100,7 +129,7 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Search and User Actions */}
+          {/* Search Actions */}
           <div className="flex items-center gap-4">
             <div className="relative hidden md:block">
               <form onSubmit={handleSearchSubmit}>
@@ -132,10 +161,6 @@ const Header = () => {
                 />
               )}
             </div>
-            
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <User className="w-5 h-5 text-gray-600" />
-            </button>
 
             {/* Mobile Menu Toggle */}
             <button
