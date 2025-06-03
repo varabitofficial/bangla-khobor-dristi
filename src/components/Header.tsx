@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Search, Calendar, X } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -127,7 +128,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <h1 className="text-2xl md:text-3xl font-bold text-black">নিউজ ভিউ বাংলাদেশ</h1>
+            <img src="/logo.svg" alt="NewsViewBD" className="h-12 md:h-16" />
           </Link>
 
           {/* Desktop Navigation */}
