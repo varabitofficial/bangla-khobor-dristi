@@ -1,66 +1,63 @@
 
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarGroup, 
-  SidebarGroupContent, 
-  SidebarGroupLabel, 
-  SidebarMenu, 
-  SidebarMenuButton, 
-  SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter
-} from '@/components/ui/sidebar';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  FolderTree, 
-  MessageSquare, 
-  Video, 
-  Users, 
-  Mail, 
-  Megaphone,
+import {
+  Calendar,
+  Home,
+  Inbox,
+  Search,
   Settings,
-  LogOut,
+  Users,
+  FileText,
+  MessageSquare,
+  Video,
+  Edit,
   Tags,
-  Folder,
-  MessageCircle
-} from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
+  Mail,
+  BarChart3,
+  Shield,
+  LogOut,
+} from "lucide-react"
 
-const menuItems = [
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
+import { Link, useLocation } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
+
+// Menu items.
+const items = [
   {
     title: "ড্যাশবোর্ড",
     url: "/admin",
-    icon: LayoutDashboard,
+    icon: Home,
   },
   {
-    title: "পোস্ট",
+    title: "পোস্টস",
     url: "/admin/posts",
     icon: FileText,
   },
   {
     title: "ক্যাটেগরি",
-    url: "/admin/categories", 
-    icon: FolderTree,
+    url: "/admin/categories",
+    icon: Tags,
   },
   {
     title: "সাবক্যাটেগরি",
     url: "/admin/subcategories",
-    icon: Folder,
-  },
-  {
-    title: "ট্যাগ",
-    url: "/admin/tags",
     icon: Tags,
   },
   {
-    title: "মতামত ও বিশ্লেষণ",
-    url: "/admin/opinions",
-    icon: MessageCircle,
+    title: "ট্যাগস",
+    url: "/admin/tags",
+    icon: Tags,
   },
   {
     title: "মন্তব্য",
@@ -71,6 +68,11 @@ const menuItems = [
     title: "ভিডিও",
     url: "/admin/videos",
     icon: Video,
+  },
+  {
+    title: "মতামত",
+    url: "/admin/opinions",
+    icon: Edit,
   },
   {
     title: "ইউজার",
@@ -85,41 +87,43 @@ const menuItems = [
   {
     title: "বিজ্ঞাপন",
     url: "/admin/ads",
-    icon: Megaphone,
+    icon: BarChart3,
   },
-];
+  {
+    title: "সেটিংস",
+    url: "/admin/settings",
+    icon: Settings,
+  },
+]
 
 export function AdminSidebar() {
   const location = useLocation();
   const { signOut } = useAuth();
 
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   return (
-    <Sidebar>
-      <SidebarHeader className="p-4 border-b">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">N</span>
-          </div>
-          <div>
-            <h2 className="font-bold text-lg">NewsViewBD</h2>
-            <p className="text-xs text-muted-foreground">অ্যাডমিন প্যানেল</p>
-          </div>
-        </div>
+    <Sidebar className="font-bangla">
+      <SidebarHeader>
+        <Link to="/" className="flex items-center gap-2 px-4 py-2">
+          <img src="/logo.svg" alt="NewsViewBD" className="h-8" />
+        </Link>
       </SidebarHeader>
-      
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>নেভিগেশন</SidebarGroupLabel>
+          <SidebarGroupLabel>অ্যাডমিন প্যানেল</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
                     isActive={location.pathname === item.url}
                   >
                     <Link to={item.url}>
-                      <item.icon className="w-4 h-4" />
+                      <item.icon />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -129,25 +133,16 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="p-4 border-t">
+      <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link to="/admin/settings">
-                <Settings className="w-4 h-4" />
-                <span>সেটিংস</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut}>
-              <LogOut className="w-4 h-4" />
+            <SidebarMenuButton onClick={handleSignOut}>
+              <LogOut />
               <span>লগআউট</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-  );
+  )
 }

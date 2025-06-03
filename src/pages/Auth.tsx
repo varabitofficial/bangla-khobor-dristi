@@ -67,8 +67,8 @@ const Auth = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 font-bangla">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <Link to="/" className="text-2xl font-bold text-black">
-            NewsViewBD
+          <Link to="/" className="flex justify-center mb-4">
+            <img src="/logo.svg" alt="NewsViewBD" className="h-12" />
           </Link>
           <p className="mt-2 text-gray-600">বাংলাদেশের অগ্রণী সংবাদ পোর্টাল</p>
         </div>
