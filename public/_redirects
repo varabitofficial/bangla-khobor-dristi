@@ -1,0 +1,6 @@
+
+# Netlify redirects (fallback for SPA)
+/*    /index.html   200
+
+# Old URL redirects (if needed)
+# /old-path    /new-path    301
