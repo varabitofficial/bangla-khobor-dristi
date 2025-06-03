@@ -103,7 +103,7 @@ const Footer = () => {
                 rel="noopener noreferrer" 
                 className="text-white hover:text-gray-300 transition-colors"
               >
-                ভারাবীট ওয়েব ডিজাইন
+                ভারাবীট ওয়েব ডিজাইন & ডেভেলপমেন্ট
               </a>
             </p>
             <div className="flex gap-3">
