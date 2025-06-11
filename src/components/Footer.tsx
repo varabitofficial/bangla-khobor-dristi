@@ -12,7 +12,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* About */}
           <div>
-            <img src="/logo_white.svg" alt="NewsViewBD" className="h-8 mb-4" />
+            <img src="/logo_white.svg" alt="NewsViewBD" className="h-8 mb-2" />
+            <p className="text-gray-400 text-sm mb-4 font-medium">জাগতে আর জাগাতে</p>
             <p className="text-gray-400 mb-4 text-sm">
               নিউজভিউ হল বাংলাদেশের একটি অগ্রণী সংবাদ পোর্টাল যা সর্বশেষ দেশি ও আন্তর্জাতিক সংবাদ প্রদান করে।
             </p>

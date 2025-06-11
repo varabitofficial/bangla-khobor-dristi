@@ -133,9 +133,10 @@ const Header = () => {
       {/* Main Header */}
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center">
+          {/* Logo with Slogan */}
+          <Link to="/" className="flex flex-col items-start">
             <img src="/logo.svg" alt="NewsViewBD" className="h-12 md:h-16" />
+            <span className="text-sm text-gray-600 mt-1 font-medium">জাগতে আর জাগাতে</span>
           </Link>
 
           {/* Desktop Navigation */}
