@@ -46,8 +46,8 @@ const Contact = () => {
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">ঠিকানা</h3>
                     <p className="text-gray-600">
-                      ১২৩ নিউজ স্ট্রিট<br />
-                      ঢাকা ১০০০<br />
+                      ১৪ আলী আহাম্মদ চুনকা রোড, দেওভোগ<br />
+                      নারায়ণগঞ্জ, ঢাকা<br />
                       বাংলাদেশ
                     </p>
                   </div>
@@ -57,8 +57,8 @@ const Contact = () => {
                   <Phone className="w-6 h-6 text-blue-600 mt-1" />
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">ফোন</h3>
-                    <p className="text-gray-600">+৮৮০ ১২৩৪ ৫৬৭৮৯০</p>
-                    <p className="text-gray-600">+৮৮০ ০৯৮৭ ৬৫৪৩২১</p>
+                    <p className="text-gray-600">+৮৮ ০১৭৯৪ ৫৬৯৮৫৫</p>
+                    <p className="text-gray-600">+৮৮ ০১৭৯৪ ৫৬৯৮৫৫</p>
                   </div>
                 </div>
 

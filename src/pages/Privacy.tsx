@@ -88,7 +88,7 @@ const Privacy = () => {
               <br />
               ইমেইল: privacy@newsviewbd.com
               <br />
-              ফোন: +৮৮০ ১২৩ৄ ৫৬৭৮৯০
+              ফোন: +৮৮ ০১৭৯৪ ৫৬৯৮৫৫
             </p>
 
             <p className="text-sm text-gray-500 mt-8">

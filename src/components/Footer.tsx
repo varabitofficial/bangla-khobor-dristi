@@ -88,10 +88,10 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-lg mb-4">যোগাযোগ করুন</h3>
             <address className="text-gray-400 not-italic">
-              <p className="mb-2">১২৩ নিউজ স্ট্রিট, ঢাকা</p>
-              <p className="mb-2">বাংলাদেশ</p>
+              <p className="mb-2">১৪ আলী আহাম্মদ চুনকা রোড, দেওভোগ</p>
+              <p className="mb-2">নারায়ণগঞ্জ, ঢাকা, বাংলাদেশ</p>
               <p className="mb-2">ইমেইল: info@newsviewbd.com</p>
-              <p className="mb-2">ফোন: +৮৮০ ১২৩৪ ৫৬৭৮৯০</p>
+              <p className="mb-2">ফোন: +৮৮ ০১৭৯৪ ৫৬৯৮৫৫</p>
             </address>
           </div>
         </div>
