@@ -136,7 +136,7 @@ const Header = () => {
           {/* Logo with Slogan */}
           <Link to="/" className="flex flex-col items-start">
             <img src="/logo.svg" alt="NewsViewBD" className="h-12 md:h-16" />
-            <span className="text-sm text-gray-600 mt-1 font-medium">জাগতে আর জাগাতে</span>
+            <span className="text-sm text-gray-600 mt-1 font-medium text-right w-full">জাগতে আর জাগাতে</span>
           </Link>
 
           {/* Desktop Navigation */}
