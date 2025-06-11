@@ -55,26 +55,23 @@ const Header = () => {
     return today.toLocaleDateString('bn-BD', options);
   };
 
-  // Get the first few categories to display in navigation, including politics and culture/entertainment
-  const getNavigationCategories = () => {
+  // Define category order and mapping
+  const categoryOrder = ['রাজনীতি', 'অর্থনীতি', 'ব্যবসা', 'বাংলাদেশ', 'বিশ্ব', 'স্বাস্থ্য', 'প্রযুক্তি', 'সংস্কৃতি', 'বিনোদন', 'খেলা'];
+  
+  const getOrderedCategories = () => {
     if (!categories) return [];
     
-    // Always include politics and culture/entertainment if they exist
-    const priorityCategories = categories.filter(cat => 
-      cat.slug === 'politics' || cat.name === 'রাজনীতি' ||
-      cat.slug === 'culture-entertainment' || cat.name === 'সংস্কৃতি ও বিনোদন' ||
-      cat.slug === 'culture' || cat.name === 'সংস্কৃতি' ||
-      cat.slug === 'entertainment' || cat.name === 'বিনোদন'
-    );
+    const categoriesMap = new Map();
+    categories.forEach(cat => {
+      categoriesMap.set(cat.name, cat);
+    });
     
-    const otherCategories = categories.filter(cat => 
-      !priorityCategories.some(pCat => pCat.id === cat.id)
-    ).slice(0, 6 - priorityCategories.length);
-    
-    return [...priorityCategories, ...otherCategories];
+    return categoryOrder
+      .map(name => categoriesMap.get(name))
+      .filter(Boolean);
   };
 
-  const navigationCategories = getNavigationCategories();
+  const navigationCategories = getOrderedCategories();
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,12 +137,12 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
+          <nav className="hidden lg:flex items-center space-x-6">
             {navigationCategories.map((category) => (
               <Link 
                 key={category.id}
                 to={`/category/${category.slug}`} 
-                className="text-gray-700 hover:text-black transition-colors"
+                className="text-gray-700 hover:text-black transition-colors text-sm"
               >
                 {category.name}
               </Link>
@@ -208,6 +205,7 @@ const Header = () => {
                   key={category.id}
                   to={`/category/${category.slug}`} 
                   className="text-gray-700 hover:text-black transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   {category.name}
                 </Link>
