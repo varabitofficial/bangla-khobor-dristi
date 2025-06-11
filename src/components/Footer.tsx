@@ -16,6 +16,13 @@ const Footer = () => {
             <p className="text-gray-400 mb-4 text-sm">
               নিউজভিউ হল বাংলাদেশের একটি অগ্রণী সংবাদ পোর্টাল যা সর্বশেষ দেশি ও আন্তর্জাতিক সংবাদ প্রদান করে।
             </p>
+            
+            {/* Editor Information */}
+            <div className="mb-4 text-sm text-gray-400">
+              <p>সম্পাদক: রহমান সিদ্দিক</p>
+              <p>নির্বাহী সম্পাদক: কাজল কানন</p>
+            </div>
+            
             <div className="flex space-x-4">
               <a href="https://facebook.com" className="text-gray-400 hover:text-white">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">

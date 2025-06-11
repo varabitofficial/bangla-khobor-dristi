@@ -55,16 +55,23 @@ const Header = () => {
     return today.toLocaleDateString('bn-BD', options);
   };
 
-  // Get the first few categories to display in navigation, including politics
+  // Get the first few categories to display in navigation, including politics and culture/entertainment
   const getNavigationCategories = () => {
     if (!categories) return [];
     
-    // Always include politics if it exists
-    const politicsCategory = categories.find(cat => cat.slug === 'politics' || cat.name === 'রাজনীতি');
-    const otherCategories = categories.filter(cat => cat.slug !== 'politics' && cat.name !== 'রাজনীতি').slice(0, 5);
+    // Always include politics and culture/entertainment if they exist
+    const priorityCategories = categories.filter(cat => 
+      cat.slug === 'politics' || cat.name === 'রাজনীতি' ||
+      cat.slug === 'culture-entertainment' || cat.name === 'সংস্কৃতি ও বিনোদন' ||
+      cat.slug === 'culture' || cat.name === 'সংস্কৃতি' ||
+      cat.slug === 'entertainment' || cat.name === 'বিনোদন'
+    );
     
-    const navCategories = politicsCategory ? [politicsCategory, ...otherCategories] : otherCategories.slice(0, 6);
-    return navCategories;
+    const otherCategories = categories.filter(cat => 
+      !priorityCategories.some(pCat => pCat.id === cat.id)
+    ).slice(0, 6 - priorityCategories.length);
+    
+    return [...priorityCategories, ...otherCategories];
   };
 
   const navigationCategories = getNavigationCategories();
@@ -133,7 +140,6 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-black transition-colors">হোম</Link>
             {navigationCategories.map((category) => (
               <Link 
                 key={category.id}
@@ -196,7 +202,6 @@ const Header = () => {
         {isMenuOpen && (
           <nav className="lg:hidden mt-4 py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-4">
-              <Link to="/" className="text-gray-700 hover:text-black transition-colors">হোম</Link>
               {navigationCategories.map((category) => (
                 <Link 
                   key={category.id}
