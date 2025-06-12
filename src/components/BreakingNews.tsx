@@ -29,7 +29,7 @@ const BreakingNews = () => {
       ];
 
   return (
-    <div className="bg-black text-white py-2 overflow-hidden">
+    <div className="bg-red-600 text-white py-2 overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="flex items-center">
           <span className="bg-white text-red-600 px-3 py-1 text-sm font-bold mr-4 whitespace-nowrap flex-shrink-0 z-10">
