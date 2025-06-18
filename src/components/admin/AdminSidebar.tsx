@@ -89,11 +89,11 @@ const items = [
     url: "/admin/ads",
     icon: BarChart3,
   },
-  {
+  /*{
     title: "সেটিংস",
     url: "/admin/settings",
     icon: Settings,
-  },
+  },*/
 ]
 
 export function AdminSidebar() {
