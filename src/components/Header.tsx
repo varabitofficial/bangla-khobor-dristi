@@ -56,7 +56,7 @@ const Header = () => {
   };
 
   // Define category order and mapping
-  const categoryOrder = ['রাজনীতি', 'অর্থনীতি', 'ব্যবসা', 'বাংলাদেশ', 'বিশ্ব', 'স্বাস্থ্য', 'প্রযুক্তি', 'সংস্কৃতি', 'বিনোদন', 'খেলা'];
+  const categoryOrder = ['রাজনীতি', 'অর্থ-বাণিজ্য', 'ব্যবসা', 'বাংলাদেশ', 'বিশ্ব', 'স্বাস্থ্য', 'প্রযুক্তি', 'সংস্কৃতি', 'বিনোদন', 'খেলা'];
   
   const getOrderedCategories = () => {
     if (!categories) return [];

@@ -15,7 +15,7 @@ const Footer = () => {
             <img src="/logo_white.svg" alt="NewsViewBD" className="h-8 mb-2" />
             <p className="text-gray-400 text-sm mb-4 font-medium">জাগতে আর জাগাতে</p>
             <p className="text-gray-400 mb-4 text-sm">
-              নিউজভিউ হল বাংলাদেশের একটি অগ্রণী সংবাদ পোর্টাল যা সর্বশেষ দেশি ও আন্তর্জাতিক সংবাদ প্রদান করে।
+              নিউজ ভিউ একটি অগ্রসর সংবাদ পরিসর।
             </p>
             
             {/* Editor Information */}
