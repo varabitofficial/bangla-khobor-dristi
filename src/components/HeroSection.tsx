@@ -29,12 +29,12 @@ const HeroSection = () => {
     return (
       <section className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <div className="w-full h-80 lg:h-96 bg-gray-200 animate-pulse rounded-lg"></div>
-          </div>
+          <div className="w-full h-80 lg:h-96 bg-gray-200 animate-pulse rounded-lg"></div>
           <div className="space-y-6">
             <div className="w-full h-48 bg-gray-200 animate-pulse rounded-lg"></div>
             <div className="w-full h-48 bg-gray-200 animate-pulse rounded-lg"></div>
+          </div>
+          <div className="space-y-6">
             <div className="w-full h-48 bg-gray-200 animate-pulse rounded-lg"></div>
             <div className="w-full h-48 bg-gray-200 animate-pulse rounded-lg"></div>
           </div>
@@ -55,12 +55,14 @@ const HeroSection = () => {
   }
 
   const [featuredStory, ...supportingStories] = posts;
+  const firstColumnStories = supportingStories.slice(0, 2);
+  const secondColumnStories = supportingStories.slice(2, 4);
 
   return (
     <section className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Featured Story */}
-        <div className="lg:col-span-2">
+        {/* Main Featured Story - First Column */}
+        <div>
           <Link to={`/post/${featuredStory.id}`} className="group block">
             <div className="relative overflow-hidden rounded-lg">
               <img 
@@ -94,9 +96,33 @@ const HeroSection = () => {
           </Link>
         </div>
 
-        {/* Supporting Stories */}
+        {/* Supporting Stories - Second Column */}
         <div className="space-y-4">
-          {supportingStories.map((story) => (
+          {firstColumnStories.map((story) => (
+            <Link key={story.id} to={`/post/${story.id}`} className="group block">
+              <div className="relative overflow-hidden rounded-lg">
+                <img 
+                  src={story.featured_image || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop"} 
+                  alt={story.title}
+                  className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                  <span className="bg-blue-600 text-white px-2 py-1 text-xs font-medium rounded mb-2 inline-block">
+                    {story.categories?.name}
+                  </span>
+                  <h3 className="text-sm font-semibold leading-tight group-hover:text-gray-200 transition-colors">
+                    {story.title}
+                  </h3>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Supporting Stories - Third Column */}
+        <div className="space-y-4">
+          {secondColumnStories.map((story) => (
             <Link key={story.id} to={`/post/${story.id}`} className="group block">
               <div className="relative overflow-hidden rounded-lg">
                 <img 
