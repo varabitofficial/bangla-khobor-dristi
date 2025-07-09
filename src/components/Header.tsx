@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Search, Calendar, X } from "lucide-react";
+import { Search, Calendar, X, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCategories } from "@/hooks/useCategories";
 import { useSearch } from "@/hooks/useSearch";
@@ -8,6 +8,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import SearchResults from "./SearchResults";
 import UserMenu from "./UserMenu";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,8 +63,12 @@ const Header = () => {
     return today.toLocaleDateString('bn-BD', options);
   };
 
-  // Define category order and mapping
-  const categoryOrder = ['রাজনীতি', 'অর্থ-বাণিজ্য', 'ব্যবসা', 'বাংলাদেশ', 'বিশ্ব', 'স্বাস্থ্য', 'প্রযুক্তি', 'সংস্কৃতি', 'বিনোদন', 'খেলা'];
+  // Define category order and mapping with updated categories
+  const categoryOrder = [
+    'বিশেষ', 'রাজনীতি', 'অর্থ-বাণিজ্য', 'বাংলাদেশ', 'নারায়ণগঞ্জ', 
+    'বিশ্ব', 'ধর্ম', 'শিক্ষা', 'আদালত', 'স্বাস্থ্য', 'প্রযুক্তি', 
+    'সংস্কৃতি', 'বিনোদন'
+  ];
   
   const getOrderedCategories = () => {
     if (!categories) return [];
@@ -72,6 +84,16 @@ const Header = () => {
   };
 
   const navigationCategories = getOrderedCategories();
+
+  // Mock subcategories for নারায়ণগঞ্জ (you can fetch these from database later)
+  const narayanganjSubcategories = [
+    { name: 'সিটি কর্পোরেশন', slug: 'narayanganj-city-corporation' },
+    { name: 'শিল্প-কারখানা', slug: 'narayanganj-industry' },
+    { name: 'শিক্ষা প্রতিষ্ঠান', slug: 'narayanganj-education' },
+    { name: 'স্বাস্থ্য সেবা', slug: 'narayanganj-health' },
+    { name: 'অপরাধ', slug: 'narayanganj-crime' },
+    { name: 'রাজনীতি', slug: 'narayanganj-politics' },
+  ];
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,16 +159,52 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-6">
-            {navigationCategories.map((category) => (
-              <Link 
-                key={category.id}
-                to={`/category/${category.slug}`} 
-                className="text-gray-700 hover:text-black transition-colors text-sm"
-              >
-                {category.name}
-              </Link>
-            ))}
+          <nav className="hidden lg:flex items-center space-x-2">
+            <NavigationMenu>
+              <NavigationMenuList>
+                {navigationCategories.map((category) => (
+                  <NavigationMenuItem key={category.id}>
+                    {category.name === 'নারায়ণগঞ্জ' ? (
+                      <>
+                        <NavigationMenuTrigger className="text-gray-700 hover:text-black transition-colors text-sm bg-transparent hover:bg-gray-100 data-[state=open]:bg-gray-100">
+                          {category.name}
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <div className="w-64 p-4 bg-white border border-gray-200 shadow-lg rounded-md">
+                            <div className="grid gap-2">
+                              <Link 
+                                to={`/category/${category.slug}`}
+                                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md font-medium"
+                              >
+                                সব খবর
+                              </Link>
+                              {narayanganjSubcategories.map((subcategory) => (
+                                <Link 
+                                  key={subcategory.slug}
+                                  to={`/category/narayanganj/${subcategory.slug}`}
+                                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                                >
+                                  {subcategory.name}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        </NavigationMenuContent>
+                      </>
+                    ) : (
+                      <NavigationMenuLink asChild>
+                        <Link 
+                          to={`/category/${category.slug}`} 
+                          className="text-gray-700 hover:text-black transition-colors text-sm px-3 py-2 rounded-md hover:bg-gray-100"
+                        >
+                          {category.name}
+                        </Link>
+                      </NavigationMenuLink>
+                    )}
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
           </nav>
 
           {/* Search Actions */}
@@ -201,14 +259,39 @@ const Header = () => {
           <nav className="lg:hidden mt-4 py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-4">
               {navigationCategories.map((category) => (
-                <Link 
-                  key={category.id}
-                  to={`/category/${category.slug}`} 
-                  className="text-gray-700 hover:text-black transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {category.name}
-                </Link>
+                <div key={category.id}>
+                  {category.name === 'নারায়ণগঞ্জ' ? (
+                    <div>
+                      <Link 
+                        to={`/category/${category.slug}`} 
+                        className="text-gray-700 hover:text-black transition-colors block py-2"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {category.name}
+                      </Link>
+                      <div className="ml-4 mt-2 space-y-2">
+                        {narayanganjSubcategories.map((subcategory) => (
+                          <Link 
+                            key={subcategory.slug}
+                            to={`/category/narayanganj/${subcategory.slug}`}
+                            className="text-gray-600 hover:text-black transition-colors block py-1 text-sm"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            • {subcategory.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <Link 
+                      to={`/category/${category.slug}`} 
+                      className="text-gray-700 hover:text-black transition-colors block py-2"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {category.name}
+                    </Link>
+                  )}
+                </div>
               ))}
               
               <div className="pt-4 border-t border-gray-200 relative">
