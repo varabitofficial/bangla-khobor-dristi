@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Search, Calendar, X, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -73,21 +72,38 @@ const Header = () => {
   const getOrderedCategories = () => {
     if (!categories) return [];
     
+    // Debug: Log all categories from database
+    console.log('Categories from database:', categories.map(cat => ({ name: cat.name, slug: cat.slug })));
+    
     const categoriesMap = new Map();
     categories.forEach(cat => {
-      categoriesMap.set(cat.name, cat);
+      categoriesMap.set(cat.name.trim(), cat);
     });
     
-    return categoryOrder
-      .map(name => categoriesMap.get(name))
+    // Debug: Log what's in the map
+    console.log('Categories map keys:', Array.from(categoriesMap.keys()));
+    console.log('Looking for categories in order:', categoryOrder);
+    
+    const orderedCategories = categoryOrder
+      .map(name => {
+        const category = categoriesMap.get(name.trim());
+        if (!category) {
+          console.log(`Category not found: "${name}"`);
+        }
+        return category;
+      })
       .filter(Boolean);
+    
+    console.log('Final ordered categories:', orderedCategories.map(cat => ({ name: cat.name, slug: cat.slug })));
+    
+    return orderedCategories;
   };
 
   const navigationCategories = getOrderedCategories();
 
   // Narayanganj subcategories with proper routing
   const narayanganjSubcategories = [
-    { name: 'আড়াইহাজার', slug: 'araihajar' },
+    { name: 'আড়াইহাজার', slug: 'araihajar' },
     { name: 'বন্দর', slug: 'bandar' },
     { name: 'রূপগঞ্জ', slug: 'rupgonj' },
     { name: 'সদর', slug: 'sadar' },
