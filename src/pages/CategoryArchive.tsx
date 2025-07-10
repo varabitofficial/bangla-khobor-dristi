@@ -13,17 +13,24 @@ const CategoryArchive = () => {
   // If we have a subcategorySlug, we're viewing a subcategory
   const isSubcategory = !!subcategorySlug;
 
+  console.log('CategoryArchive - slug:', slug, 'subcategorySlug:', subcategorySlug);
+
   // Fetch category data
-  const { data: category } = useQuery({
+  const { data: category, isLoading: categoryLoading } = useQuery({
     queryKey: ['category', slug],
     queryFn: async () => {
+      console.log('Fetching category with slug:', slug);
       const { data, error } = await supabase
         .from('categories')
         .select('*')
         .eq('slug', slug)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching category:', error);
+        throw error;
+      }
+      console.log('Category data:', data);
       return data;
     },
     enabled: !!slug,
@@ -31,10 +38,11 @@ const CategoryArchive = () => {
 
   // Fetch subcategory data if we're viewing a subcategory
   const { data: subcategory } = useQuery({
-    queryKey: ['subcategory', subcategorySlug],
+    queryKey: ['subcategory', subcategorySlug, category?.id],
     queryFn: async () => {
       if (!subcategorySlug || !category?.id) return null;
       
+      console.log('Fetching subcategory with slug:', subcategorySlug, 'parent_category_id:', category.id);
       const { data, error } = await supabase
         .from('subcategories')
         .select('*')
@@ -42,7 +50,11 @@ const CategoryArchive = () => {
         .eq('parent_category_id', category.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching subcategory:', error);
+        throw error;
+      }
+      console.log('Subcategory data:', data);
       return data;
     },
     enabled: !!subcategorySlug && !!category?.id,
@@ -50,9 +62,14 @@ const CategoryArchive = () => {
 
   // Fetch posts based on whether we're viewing category or subcategory
   const { data: posts, isLoading } = useQuery({
-    queryKey: ['category-posts', category?.id, subcategory?.id],
+    queryKey: ['category-posts', category?.id, subcategory?.id, isSubcategory],
     queryFn: async () => {
-      if (!category?.id) return [];
+      if (!category?.id) {
+        console.log('No category ID available');
+        return [];
+      }
+
+      console.log('Fetching posts for category:', category.id, 'subcategory:', subcategory?.id, 'isSubcategory:', isSubcategory);
 
       let query = supabase
         .from('posts')
@@ -65,6 +82,8 @@ const CategoryArchive = () => {
           created_at,
           read_time,
           view_count,
+          category_id,
+          subcategory_id,
           profiles (full_name)
         `)
         .eq('category_id', category.id)
@@ -72,13 +91,22 @@ const CategoryArchive = () => {
 
       // If we're viewing a subcategory, filter by subcategory_id
       if (isSubcategory && subcategory?.id) {
+        console.log('Adding subcategory filter:', subcategory.id);
         query = query.eq('subcategory_id', subcategory.id);
+      } else if (!isSubcategory) {
+        // If we're viewing the main category, show posts that don't have a subcategory OR show all posts
+        // For now, let's show all posts in the category regardless of subcategory
+        console.log('Showing all posts in category');
       }
 
       query = query.order('published_at', { ascending: false });
 
       const { data, error } = await query;
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching posts:', error);
+        throw error;
+      }
+      console.log('Posts data:', data);
       return data;
     },
     enabled: !!category?.id,
@@ -98,6 +126,34 @@ const CategoryArchive = () => {
     ? `${category?.name} > ${subcategory?.name} বিভাগের সকল সংবাদ`
     : `${category?.name} বিভাগের সকল সংবাদ`;
 
+  if (categoryLoading) {
+    return (
+      <div className="min-h-screen bg-white font-bangla">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p className="text-gray-600">লোড হচ্ছে...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!category) {
+    return (
+      <div className="min-h-screen bg-white font-bangla">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p className="text-gray-600">ক্যাটেগরি পাওয়া যায়নি।</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white font-bangla">
       <Header />
@@ -110,6 +166,9 @@ const CategoryArchive = () => {
           <p className="text-gray-600">
             {displayDescription}
           </p>
+          <div className="mt-2 text-sm text-gray-500">
+            মোট পোস্ট: {posts?.length || 0}
+          </div>
         </div>
 
         {isLoading ? (
@@ -172,6 +231,12 @@ const CategoryArchive = () => {
         ) : (
           <div className="text-center py-12">
             <p className="text-gray-600">এই ক্যাটেগরিতে কোনো সংবাদ পাওয়া যায়নি।</p>
+            <div className="mt-4 text-sm text-gray-500">
+              <p>ক্যাটেগরি: {category?.name} (ID: {category?.id})</p>
+              {isSubcategory && subcategory && (
+                <p>সাবক্যাটেগরি: {subcategory.name} (ID: {subcategory.id})</p>
+              )}
+            </div>
           </div>
         )}
       </main>

@@ -165,7 +165,7 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-1">
             <NavigationMenu>
-              <NavigationMenuList>
+              <NavigationMenuList className="space-x-1">
                 {navigationCategories.map((category) => (
                   <NavigationMenuItem key={category.id}>
                     {category.name === 'নারায়ণগঞ্জ' ? (
@@ -174,24 +174,22 @@ const Header = () => {
                           {category.name}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
-                          <div className="absolute left-0 top-full w-56 p-3 bg-white border border-gray-200 shadow-lg rounded-md z-50 mt-1">
-                            <div className="grid gap-1">
+                          <div className="grid gap-1 p-3 w-56">
+                            <Link 
+                              to={`/category/${category.slug}`}
+                              className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md font-medium"
+                            >
+                              সব খবর
+                            </Link>
+                            {narayanganjSubcategories.map((subcategory) => (
                               <Link 
-                                to={`/category/${category.slug}`}
-                                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md font-medium"
+                                key={subcategory.slug}
+                                to={`/category/narayanganj/${subcategory.slug}`}
+                                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                               >
-                                সব খবর
+                                {subcategory.name}
                               </Link>
-                              {narayanganjSubcategories.map((subcategory) => (
-                                <Link 
-                                  key={subcategory.slug}
-                                  to={`/category/narayanganj/${subcategory.slug}`}
-                                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-                                >
-                                  {subcategory.name}
-                                </Link>
-                              ))}
-                            </div>
+                            ))}
                           </div>
                         </NavigationMenuContent>
                       </>
@@ -220,7 +218,7 @@ const Header = () => {
                   placeholder="খুঁজুন..."
                   value={searchInput}
                   onChange={handleSearchInputChange}
-                  className="pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-48"
+                  className="pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-40"
                 />
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 {searchInput && (
