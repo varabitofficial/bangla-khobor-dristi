@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Search, Calendar, X, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -72,29 +73,17 @@ const Header = () => {
   const getOrderedCategories = () => {
     if (!categories) return [];
     
-    // Debug: Log all categories from database
-    console.log('Categories from database:', categories.map(cat => ({ name: cat.name, slug: cat.slug })));
-    
     const categoriesMap = new Map();
     categories.forEach(cat => {
       categoriesMap.set(cat.name.trim(), cat);
     });
     
-    // Debug: Log what's in the map
-    console.log('Categories map keys:', Array.from(categoriesMap.keys()));
-    console.log('Looking for categories in order:', categoryOrder);
-    
     const orderedCategories = categoryOrder
       .map(name => {
         const category = categoriesMap.get(name.trim());
-        if (!category) {
-          console.log(`Category not found: "${name}"`);
-        }
         return category;
       })
       .filter(Boolean);
-    
-    console.log('Final ordered categories:', orderedCategories.map(cat => ({ name: cat.name, slug: cat.slug })));
     
     return orderedCategories;
   };
@@ -174,19 +163,19 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-2">
+          <nav className="hidden lg:flex items-center space-x-1">
             <NavigationMenu>
               <NavigationMenuList>
                 {navigationCategories.map((category) => (
                   <NavigationMenuItem key={category.id}>
                     {category.name === 'নারায়ণগঞ্জ' ? (
                       <>
-                        <NavigationMenuTrigger className="text-gray-700 hover:text-black transition-colors text-sm bg-transparent hover:bg-gray-100 data-[state=open]:bg-gray-100">
+                        <NavigationMenuTrigger className="text-gray-700 hover:text-black transition-colors text-sm bg-transparent hover:bg-gray-100 data-[state=open]:bg-gray-100 px-2 py-2">
                           {category.name}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
-                          <div className="w-64 p-4 bg-white border border-gray-200 shadow-lg rounded-md z-50">
-                            <div className="grid gap-2">
+                          <div className="absolute left-0 top-full w-56 p-3 bg-white border border-gray-200 shadow-lg rounded-md z-50 mt-1">
+                            <div className="grid gap-1">
                               <Link 
                                 to={`/category/${category.slug}`}
                                 className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md font-medium"
@@ -210,7 +199,7 @@ const Header = () => {
                       <NavigationMenuLink asChild>
                         <Link 
                           to={`/category/${category.slug}`} 
-                          className="text-gray-700 hover:text-black transition-colors text-sm px-3 py-2 rounded-md hover:bg-gray-100"
+                          className="text-gray-700 hover:text-black transition-colors text-sm px-2 py-2 rounded-md hover:bg-gray-100"
                         >
                           {category.name}
                         </Link>
@@ -222,7 +211,7 @@ const Header = () => {
             </NavigationMenu>
           </nav>
 
-          {/* Search Actions */}
+          {/* Search Actions - Made smaller */}
           <div className="flex items-center gap-4">
             <div className="relative hidden md:block">
               <form onSubmit={handleSearchSubmit}>
@@ -231,7 +220,7 @@ const Header = () => {
                   placeholder="খুঁজুন..."
                   value={searchInput}
                   onChange={handleSearchInputChange}
-                  className="pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                  className="pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-48"
                 />
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 {searchInput && (

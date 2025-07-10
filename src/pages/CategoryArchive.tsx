@@ -8,8 +8,12 @@ import { Link } from "react-router-dom";
 import { Clock, Eye } from "lucide-react";
 
 const CategoryArchive = () => {
-  const { slug } = useParams();
+  const { slug, subcategorySlug } = useParams();
 
+  // If we have a subcategorySlug, we're viewing a subcategory
+  const isSubcategory = !!subcategorySlug;
+
+  // Fetch category data
   const { data: category } = useQuery({
     queryKey: ['category', slug],
     queryFn: async () => {
@@ -25,10 +29,32 @@ const CategoryArchive = () => {
     enabled: !!slug,
   });
 
-  const { data: posts, isLoading } = useQuery({
-    queryKey: ['category-posts', category?.id],
+  // Fetch subcategory data if we're viewing a subcategory
+  const { data: subcategory } = useQuery({
+    queryKey: ['subcategory', subcategorySlug],
     queryFn: async () => {
+      if (!subcategorySlug || !category?.id) return null;
+      
       const { data, error } = await supabase
+        .from('subcategories')
+        .select('*')
+        .eq('slug', subcategorySlug)
+        .eq('parent_category_id', category.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!subcategorySlug && !!category?.id,
+  });
+
+  // Fetch posts based on whether we're viewing category or subcategory
+  const { data: posts, isLoading } = useQuery({
+    queryKey: ['category-posts', category?.id, subcategory?.id],
+    queryFn: async () => {
+      if (!category?.id) return [];
+
+      let query = supabase
         .from('posts')
         .select(`
           id,
@@ -41,10 +67,17 @@ const CategoryArchive = () => {
           view_count,
           profiles (full_name)
         `)
-        .eq('category_id', category?.id)
-        .eq('status', 'published')
-        .order('published_at', { ascending: false });
+        .eq('category_id', category.id)
+        .eq('status', 'published');
 
+      // If we're viewing a subcategory, filter by subcategory_id
+      if (isSubcategory && subcategory?.id) {
+        query = query.eq('subcategory_id', subcategory.id);
+      }
+
+      query = query.order('published_at', { ascending: false });
+
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
@@ -59,6 +92,12 @@ const CategoryArchive = () => {
     });
   };
 
+  // Get display name and description
+  const displayName = isSubcategory ? subcategory?.name : category?.name;
+  const displayDescription = isSubcategory 
+    ? `${category?.name} > ${subcategory?.name} বিভাগের সকল সংবাদ`
+    : `${category?.name} বিভাগের সকল সংবাদ`;
+
   return (
     <div className="min-h-screen bg-white font-bangla">
       <Header />
@@ -66,10 +105,10 @@ const CategoryArchive = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {category?.name || 'ক্যাটেগরি'}
+            {displayName || 'ক্যাটেগরি'}
           </h1>
           <p className="text-gray-600">
-            {category?.name} বিভাগের সকল সংবাদ
+            {displayDescription}
           </p>
         </div>
 
