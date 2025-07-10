@@ -27,17 +27,30 @@ const HeroSection = () => {
 
   if (isLoading) {
     return (
-      <section className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="w-full h-80 lg:h-96 bg-gray-200 animate-pulse rounded-lg"></div>
-          <div className="space-y-6">
-            <div className="w-full h-48 bg-gray-200 animate-pulse rounded-lg"></div>
-            <div className="w-full h-48 bg-gray-200 animate-pulse rounded-lg"></div>
+      <section className="w-full px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 bg-red-100">
+
+          {/* First Column – 50% width (col-span-2) */}
+          <div className="col-span-1 lg:col-span-2">
+            <div className="w-full h-80 lg:h-96 bg-gray-200 animate-pulse rounded-lg"></div>
           </div>
-          <div className="space-y-6">
-            <div className="w-full h-48 bg-gray-200 animate-pulse rounded-lg"></div>
-            <div className="w-full h-48 bg-gray-200 animate-pulse rounded-lg"></div>
+
+          {/* Second Column – 25% width (col-span-1) */}
+          <div className="col-span-1">
+            <div className="space-y-6">
+              <div className="w-full h-48 bg-gray-200 animate-pulse rounded-lg"></div>
+              <div className="w-full h-48 bg-gray-200 animate-pulse rounded-lg"></div>
+            </div>
           </div>
+
+          {/* Third Column – 25% width (col-span-1) */}
+          <div className="col-span-1">
+            <div className="space-y-6">
+              <div className="w-full h-48 bg-gray-200 animate-pulse rounded-lg"></div>
+              <div className="w-full h-48 bg-gray-200 animate-pulse rounded-lg"></div>
+            </div>
+          </div>
+
         </div>
       </section>
     );
@@ -59,14 +72,18 @@ const HeroSection = () => {
   const secondColumnStories = supportingStories.slice(2, 4);
 
   return (
-    <section className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <section className="w-full px-4 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch">
+
         {/* Main Featured Story - First Column */}
-        <div>
-          <Link to={`/post/${featuredStory.id}`} className="group block">
-            <div className="relative overflow-hidden rounded-lg">
-              <img 
-                src={featuredStory.featured_image || "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=600&h=400&fit=crop"} 
+        <div className="col-span-1 lg:col-span-2">
+          <Link to={`/post/${featuredStory.id}`} className="group block h-full">
+            <div className="relative overflow-hidden rounded-lg h-full">
+              <img
+                src={
+                  featuredStory.featured_image ||
+                  "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=600&h=400&fit=crop"
+                }
                 alt={featuredStory.title}
                 className="w-full h-80 lg:h-96 object-cover group-hover:scale-105 transition-transform duration-300"
               />
@@ -78,9 +95,7 @@ const HeroSection = () => {
                 <h2 className="text-2xl lg:text-3xl font-bold mb-3 leading-tight group-hover:text-gray-200 transition-colors">
                   {featuredStory.title}
                 </h2>
-                <p className="text-gray-200 mb-4 line-clamp-2">
-                  {featuredStory.excerpt}
-                </p>
+                <p className="text-gray-200 mb-4 line-clamp-2">{featuredStory.excerpt}</p>
                 <div className="flex items-center gap-4 text-sm text-gray-300">
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
@@ -97,14 +112,17 @@ const HeroSection = () => {
         </div>
 
         {/* Supporting Stories - Second Column */}
-        <div className="space-y-4">
+        <div className="col-span-1 h-full flex flex-col justify-between gap-4">
           {firstColumnStories.map((story) => (
-            <Link key={story.id} to={`/post/${story.id}`} className="group block">
-              <div className="relative overflow-hidden rounded-lg">
-                <img 
-                  src={story.featured_image || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop"} 
+            <Link key={story.id} to={`/post/${story.id}`} className="group block flex-1">
+              <div className="relative overflow-hidden rounded-lg h-full">
+                <img
+                  src={
+                    story.featured_image ||
+                    "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop"
+                  }
                   alt={story.title}
-                  className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
@@ -121,14 +139,17 @@ const HeroSection = () => {
         </div>
 
         {/* Supporting Stories - Third Column */}
-        <div className="space-y-4">
+        <div className="col-span-1 h-full flex flex-col justify-between gap-4">
           {secondColumnStories.map((story) => (
-            <Link key={story.id} to={`/post/${story.id}`} className="group block">
-              <div className="relative overflow-hidden rounded-lg">
-                <img 
-                  src={story.featured_image || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop"} 
+            <Link key={story.id} to={`/post/${story.id}`} className="group block flex-1">
+              <div className="relative overflow-hidden rounded-lg h-full">
+                <img
+                  src={
+                    story.featured_image ||
+                    "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop"
+                  }
                   alt={story.title}
-                  className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
