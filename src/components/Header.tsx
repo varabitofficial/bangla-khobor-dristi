@@ -85,14 +85,14 @@ const Header = () => {
 
   const navigationCategories = getOrderedCategories();
 
-  // Mock subcategories for নারায়ণগঞ্জ (you can fetch these from database later)
+  // Narayanganj subcategories with proper routing
   const narayanganjSubcategories = [
-    { name: 'সিটি কর্পোরেশন', slug: 'narayanganj-city-corporation' },
-    { name: 'শিল্প-কারখানা', slug: 'narayanganj-industry' },
-    { name: 'শিক্ষা প্রতিষ্ঠান', slug: 'narayanganj-education' },
-    { name: 'স্বাস্থ্য সেবা', slug: 'narayanganj-health' },
-    { name: 'অপরাধ', slug: 'narayanganj-crime' },
-    { name: 'রাজনীতি', slug: 'narayanganj-politics' },
+    { name: 'সিটি কর্পোরেশন', slug: 'city-corporation' },
+    { name: 'শিল্প-কারখানা', slug: 'industry' },
+    { name: 'শিক্ষা প্রতিষ্ঠান', slug: 'education' },
+    { name: 'স্বাস্থ্য সেবা', slug: 'health' },
+    { name: 'অপরাধ', slug: 'crime' },
+    { name: 'রাজনীতি', slug: 'politics' },
   ];
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -142,7 +142,7 @@ const Header = () => {
                   </button>
                 </>
               ) : (
-                <Link to="/login" className="hover:text-black transition-colors">লগইন</Link>
+                <Link to="/auth" className="hover:text-black transition-colors">লগইন</Link>
               )}
             </div>
           </div>
@@ -170,7 +170,7 @@ const Header = () => {
                           {category.name}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
-                          <div className="w-64 p-4 bg-white border border-gray-200 shadow-lg rounded-md">
+                          <div className="w-64 p-4 bg-white border border-gray-200 shadow-lg rounded-md z-50">
                             <div className="grid gap-2">
                               <Link 
                                 to={`/category/${category.slug}`}
@@ -264,7 +264,7 @@ const Header = () => {
                     <div>
                       <Link 
                         to={`/category/${category.slug}`} 
-                        className="text-gray-700 hover:text-black transition-colors block py-2"
+                        className="text-gray-700 hover:text-black transition-colors block py-2 font-medium"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         {category.name}
