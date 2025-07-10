@@ -87,12 +87,11 @@ const Header = () => {
 
   // Narayanganj subcategories with proper routing
   const narayanganjSubcategories = [
-    { name: 'সিটি কর্পোরেশন', slug: 'city-corporation' },
-    { name: 'শিল্প-কারখানা', slug: 'industry' },
-    { name: 'শিক্ষা প্রতিষ্ঠান', slug: 'education' },
-    { name: 'স্বাস্থ্য সেবা', slug: 'health' },
-    { name: 'অপরাধ', slug: 'crime' },
-    { name: 'রাজনীতি', slug: 'politics' },
+    { name: 'আড়াইহাজার', slug: 'araihajar' },
+    { name: 'বন্দর', slug: 'bandar' },
+    { name: 'রূপগঞ্জ', slug: 'rupgonj' },
+    { name: 'সদর', slug: 'sadar' },
+    { name: 'সোনারগাঁও', slug: 'sonargoan' },
   ];
 
   const handleSearchSubmit = (e: React.FormEvent) => {
