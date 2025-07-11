@@ -71,43 +71,76 @@ const CategoryArchive = () => {
 
       console.log('Fetching posts for category:', category.id, 'subcategory:', subcategory?.id, 'isSubcategory:', isSubcategory);
 
-      let query = supabase
-        .from('posts')
-        .select(`
-          id,
-          title,
-          excerpt,
-          featured_image,
-          published_at,
-          created_at,
-          read_time,
-          view_count,
-          category_id,
-          subcategory_id,
-          profiles (full_name)
-        `)
-        .eq('category_id', category.id)
-        .eq('status', 'published');
-
-      // If we're viewing a subcategory, filter by subcategory_id
       if (isSubcategory && subcategory?.id) {
-        console.log('Adding subcategory filter:', subcategory.id);
-        query = query.eq('subcategory_id', subcategory.id);
-      } else if (!isSubcategory) {
-        // If we're viewing the main category, show posts that don't have a subcategory OR show all posts
-        // For now, let's show all posts in the category regardless of subcategory
-        console.log('Showing all posts in category');
-      }
+        // Fetch posts that belong to this subcategory
+        console.log('Fetching posts for subcategory:', subcategory.id);
+        const { data: postSubcategories, error } = await supabase
+          .from('post_subcategories')
+          .select(`
+            posts (
+              id,
+              title,
+              excerpt,
+              featured_image,
+              published_at,
+              created_at,
+              read_time,
+              view_count,
+              profiles (full_name)
+            )
+          `)
+          .eq('subcategory_id', subcategory.id);
 
-      query = query.order('published_at', { ascending: false });
+        if (error) {
+          console.error('Error fetching subcategory posts:', error);
+          throw error;
+        }
 
-      const { data, error } = await query;
-      if (error) {
-        console.error('Error fetching posts:', error);
-        throw error;
+        // Extract posts from the junction table results and filter out published posts
+        const subcategoryPosts = postSubcategories
+          ?.map(ps => ps.posts)
+          .filter(post => post !== null)
+          .filter((post: any) => post.status === 'published' || !post.status) // Include posts without status for backward compatibility
+          .sort((a: any, b: any) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime()) || [];
+
+        console.log('Subcategory posts:', subcategoryPosts);
+        return subcategoryPosts;
+      } else {
+        // Fetch posts that belong to this category (main category view)
+        console.log('Fetching posts for main category:', category.id);
+        const { data: postCategories, error } = await supabase
+          .from('post_categories')
+          .select(`
+            posts (
+              id,
+              title,
+              excerpt,
+              featured_image,
+              published_at,
+              created_at,
+              read_time,
+              view_count,
+              status,
+              profiles (full_name)
+            )
+          `)
+          .eq('category_id', category.id);
+
+        if (error) {
+          console.error('Error fetching category posts:', error);
+          throw error;
+        }
+
+        // Extract posts from the junction table results and filter published posts
+        const categoryPosts = postCategories
+          ?.map(pc => pc.posts)
+          .filter(post => post !== null)
+          .filter((post: any) => post.status === 'published' || !post.status) // Include posts without status for backward compatibility
+          .sort((a: any, b: any) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime()) || [];
+
+        console.log('Category posts:', categoryPosts);
+        return categoryPosts;
       }
-      console.log('Posts data:', data);
-      return data;
     },
     enabled: !!category?.id,
   });
@@ -183,7 +216,7 @@ const CategoryArchive = () => {
           </div>
         ) : posts && posts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => (
+            {posts.map((post: any) => (
               <Link key={post.id} to={`/post/${post.id}`} className="group">
                 <article className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                   <div className="relative overflow-hidden">
@@ -215,11 +248,11 @@ const CategoryArchive = () => {
                       <div className="flex items-center gap-3">
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          <span>{post.read_time} মিনিট</span>
+                          <span>{post.read_time || 5} মিনিট</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Eye className="w-3 h-3" />
-                          <span>{post.view_count}</span>
+                          <span>{post.view_count || 0}</span>
                         </div>
                       </div>
                     </div>

@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -28,12 +27,12 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
     content: '',
     excerpt: '',
     featured_image: '',
-    category_id: '',
-    subcategory_id: '',
     is_featured: false,
     read_time: 5,
     status: 'published' as 'draft' | 'published'
   });
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [newTagName, setNewTagName] = useState('');
 
@@ -50,18 +49,15 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
   });
 
   const { data: subcategories } = useQuery({
-    queryKey: ['subcategories', formData.category_id],
+    queryKey: ['subcategories'],
     queryFn: async () => {
-      if (!formData.category_id) return [];
       const { data, error } = await supabase
         .from('subcategories')
-        .select('*')
-        .eq('parent_category_id', formData.category_id)
+        .select('*, categories(*)')
         .order('name');
       if (error) throw error;
       return data;
     },
-    enabled: !!formData.category_id,
   });
 
   const { data: tags } = useQuery({
@@ -83,28 +79,47 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
         content: post.content || '',
         excerpt: post.excerpt || '',
         featured_image: post.featured_image || '',
-        category_id: post.category_id || '',
-        subcategory_id: post.subcategory_id || '',
         is_featured: post.is_featured || false,
         read_time: post.read_time || 5,
         status: post.status || 'published'
       });
 
-      // Load existing tags for the post
+      // Load existing categories, subcategories, and tags for the post
       if (post.id) {
-        loadPostTags(post.id);
+        loadPostRelations(post.id);
       }
     }
   }, [post]);
 
-  const loadPostTags = async (postId: string) => {
-    const { data, error } = await supabase
+  const loadPostRelations = async (postId: string) => {
+    // Load categories
+    const { data: postCategories } = await supabase
+      .from('post_categories')
+      .select('category_id')
+      .eq('post_id', postId);
+    
+    if (postCategories) {
+      setSelectedCategories(postCategories.map(pc => pc.category_id));
+    }
+
+    // Load subcategories
+    const { data: postSubcategories } = await supabase
+      .from('post_subcategories')
+      .select('subcategory_id')
+      .eq('post_id', postId);
+    
+    if (postSubcategories) {
+      setSelectedSubcategories(postSubcategories.map(ps => ps.subcategory_id));
+    }
+
+    // Load tags
+    const { data: postTags } = await supabase
       .from('post_tags')
       .select('tag_id')
       .eq('post_id', postId);
     
-    if (!error && data) {
-      setSelectedTags(data.map(pt => pt.tag_id));
+    if (postTags) {
+      setSelectedTags(postTags.map(pt => pt.tag_id));
     }
   };
 
@@ -142,16 +157,24 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
         throw new Error('পোস্টের কন্টেন্ট প্রয়োজন।');
       }
 
-      if (!data.category_id) {
-        throw new Error('ক্যাটেগরি নির্বাচন করুন।');
+      if (selectedCategories.length === 0) {
+        throw new Error('অন্তত একটি ক্যাটেগরি নির্বাচন করুন।');
       }
 
-      // Clean the data - convert empty strings to null for UUID fields
+      // Clean the data - we no longer need category_id and subcategory_id in posts table
       const postData = {
-        ...data,
+        title: data.title,
+        content: data.content,
+        excerpt: data.excerpt,
+        featured_image: data.featured_image,
+        is_featured: data.is_featured,
+        read_time: data.read_time,
+        status: data.status,
         author_id: user.id,
         published_at: data.status === 'published' ? new Date().toISOString() : null,
-        subcategory_id: data.subcategory_id && data.subcategory_id.trim() !== '' ? data.subcategory_id : null
+        // Keep the first selected category for backward compatibility
+        category_id: selectedCategories[0] || null,
+        subcategory_id: selectedSubcategories[0] || null
       };
 
       console.log('Final post data to save:', postData);
@@ -183,8 +206,68 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
         console.log('New post created with ID:', postId);
       }
 
-      // Handle tags
+      // Handle multiple categories
       if (postId) {
+        console.log('Handling categories for post:', postId);
+        // Remove existing categories
+        const { error: deleteCategoriesError } = await supabase
+          .from('post_categories')
+          .delete()
+          .eq('post_id', postId);
+        
+        if (deleteCategoriesError) {
+          console.error('Error deleting existing categories:', deleteCategoriesError);
+        }
+
+        // Add new categories
+        if (selectedCategories.length > 0) {
+          const categoryData = selectedCategories.map(categoryId => ({
+            post_id: postId,
+            category_id: categoryId
+          }));
+          
+          console.log('Adding categories:', categoryData);
+          const { error: categoryError } = await supabase
+            .from('post_categories')
+            .insert(categoryData);
+          
+          if (categoryError) {
+            console.error('Category insert error:', categoryError);
+            throw categoryError;
+          }
+        }
+
+        // Handle multiple subcategories
+        console.log('Handling subcategories for post:', postId);
+        // Remove existing subcategories
+        const { error: deleteSubcategoriesError } = await supabase
+          .from('post_subcategories')
+          .delete()
+          .eq('post_id', postId);
+        
+        if (deleteSubcategoriesError) {
+          console.error('Error deleting existing subcategories:', deleteSubcategoriesError);
+        }
+
+        // Add new subcategories
+        if (selectedSubcategories.length > 0) {
+          const subcategoryData = selectedSubcategories.map(subcategoryId => ({
+            post_id: postId,
+            subcategory_id: subcategoryId
+          }));
+          
+          console.log('Adding subcategories:', subcategoryData);
+          const { error: subcategoryError } = await supabase
+            .from('post_subcategories')
+            .insert(subcategoryData);
+          
+          if (subcategoryError) {
+            console.error('Subcategory insert error:', subcategoryError);
+            throw subcategoryError;
+          }
+        }
+
+        // Handle tags
         console.log('Handling tags for post:', postId);
         // Remove existing tags
         const { error: deleteError } = await supabase
@@ -238,6 +321,8 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
   const handleSubmit = (status: 'draft' | 'published') => {
     console.log('Submit triggered with status:', status);
     console.log('Form data:', formData);
+    console.log('Selected categories:', selectedCategories);
+    console.log('Selected subcategories:', selectedSubcategories);
     console.log('User:', user);
 
     // Client-side validation
@@ -250,7 +335,7 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
       return;
     }
 
-    if (!formData.title?.trim() || !formData.content?.trim() || !formData.category_id) {
+    if (!formData.title?.trim() || !formData.content?.trim() || selectedCategories.length === 0) {
       toast({
         title: "ত্রুটি",
         description: "সকল প্রয়োজনীয় ফিল্ড পূরণ করুন। (শিরোনাম, কন্টেন্ট, ক্যাটেগরি)",
@@ -287,6 +372,22 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
     }
   };
 
+  const toggleCategory = (categoryId: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const toggleSubcategory = (subcategoryId: string) => {
+    setSelectedSubcategories(prev => 
+      prev.includes(subcategoryId) 
+        ? prev.filter(id => id !== subcategoryId)
+        : [...prev, subcategoryId]
+    );
+  };
+
   const toggleTag = (tagId: string) => {
     setSelectedTags(prev => 
       prev.includes(tagId) 
@@ -300,7 +401,7 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
   console.log('Form validation state:', {
     hasTitle: !!formData.title?.trim(),
     hasContent: !!formData.content?.trim(),
-    hasCategory: !!formData.category_id,
+    hasCategories: selectedCategories.length > 0,
     hasUser: !!user?.id
   });
 
@@ -337,8 +438,8 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
             <p>User ID: {user?.id || 'Not logged in'}</p>
             <p>Title: {formData.title ? 'Yes' : 'No'}</p>
             <p>Content: {formData.content ? 'Yes' : 'No'}</p>
-            <p>Category: {formData.category_id || 'Not selected'}</p>
-            <p>Subcategory: {formData.subcategory_id || 'None selected'}</p>
+            <p>Categories: {selectedCategories.length}</p>
+            <p>Subcategories: {selectedSubcategories.length}</p>
           </div>
         )}
 
@@ -379,42 +480,74 @@ const PostForm = ({ post, onCancel, onSuccess }: PostFormProps) => {
             />
 
             <div>
-              <Label htmlFor="category">ক্যাটেগরি *</Label>
-              <Select
-                value={formData.category_id}
-                onValueChange={(value) => setFormData({ ...formData, category_id: value, subcategory_id: '' })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="ক্যাটেগরি নির্বাচন করুন" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories?.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
+              <Label>ক্যাটেগরি নির্বাচন করুন *</Label>
+              <div className="max-h-32 overflow-y-auto space-y-2 mt-2">
+                {categories?.map((category) => (
+                  <div key={category.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`category-${category.id}`}
+                      checked={selectedCategories.includes(category.id)}
+                      onCheckedChange={() => toggleCategory(category.id)}
+                    />
+                    <Label htmlFor={`category-${category.id}`} className="text-sm">{category.name}</Label>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-2 mt-3">
+                {selectedCategories.map((categoryId) => {
+                  const category = categories?.find(c => c.id === categoryId);
+                  return category ? (
+                    <Badge key={categoryId} variant="secondary" className="text-xs">
                       {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                      <button
+                        type="button"
+                        onClick={() => toggleCategory(categoryId)}
+                        className="ml-1 hover:text-red-600"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ) : null;
+                })}
+              </div>
             </div>
 
             {subcategories && subcategories.length > 0 && (
               <div>
-                <Label htmlFor="subcategory">সাবক্যাটেগরি</Label>
-                <Select
-                  value={formData.subcategory_id}
-                  onValueChange={(value) => setFormData({ ...formData, subcategory_id: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="সাবক্যাটেগরি নির্বাচন করুন" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subcategories.map((subcategory) => (
-                      <SelectItem key={subcategory.id} value={subcategory.id}>
+                <Label>সাবক্যাটেগরি নির্বাচন করুন</Label>
+                <div className="max-h-32 overflow-y-auto space-y-2 mt-2">
+                  {subcategories.map((subcategory) => (
+                    <div key={subcategory.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`subcategory-${subcategory.id}`}
+                        checked={selectedSubcategories.includes(subcategory.id)}
+                        onCheckedChange={() => toggleSubcategory(subcategory.id)}
+                      />
+                      <Label htmlFor={`subcategory-${subcategory.id}`} className="text-sm">
+                        {subcategory.name} ({subcategory.categories?.name})
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {selectedSubcategories.map((subcategoryId) => {
+                    const subcategory = subcategories?.find(s => s.id === subcategoryId);
+                    return subcategory ? (
+                      <Badge key={subcategoryId} variant="outline" className="text-xs">
                         {subcategory.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                        <button
+                          type="button"
+                          onClick={() => toggleSubcategory(subcategoryId)}
+                          className="ml-1 hover:text-red-600"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </Badge>
+                    ) : null;
+                  })}
+                </div>
               </div>
             )}
 

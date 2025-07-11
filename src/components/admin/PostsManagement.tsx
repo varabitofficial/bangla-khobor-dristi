@@ -27,8 +27,13 @@ const PostsManagement = () => {
         .from('posts')
         .select(`
           *,
-          categories (name),
-          profiles (full_name)
+          profiles (full_name),
+          post_categories (
+            categories (name)
+          ),
+          post_subcategories (
+            subcategories (name)
+          )
         `)
         .order('created_at', { ascending: false });
 
@@ -126,6 +131,7 @@ const PostsManagement = () => {
                   <TableHead>শিরোনাম</TableHead>
                   <TableHead>লেখক</TableHead>
                   <TableHead>ক্যাটেগরি</TableHead>
+                  <TableHead>সাবক্যাটেগরি</TableHead>
                   <TableHead>ভিউ</TableHead>
                   <TableHead>স্ট্যাটাস</TableHead>
                   <TableHead>তারিখ</TableHead>
@@ -137,7 +143,24 @@ const PostsManagement = () => {
                   <TableRow key={post.id}>
                     <TableCell className="font-medium">{post.title}</TableCell>
                     <TableCell>{post.profiles?.full_name}</TableCell>
-                    <TableCell>{post.categories?.name}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {post.post_categories?.map((pc: any, index: number) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {pc.categories?.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {post.post_subcategories?.map((ps: any, index: number) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {ps.subcategories?.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center">
                         <Eye className="w-4 h-4 mr-1" />
