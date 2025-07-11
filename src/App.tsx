@@ -48,8 +48,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/post/:id" element={<PostSingle />} />
             <Route path="/posts" element={<PostsArchive />} />
+            <Route path="/category/:slug/:subcategorySlug" element={<CategoryArchive />} />
             <Route path="/category/:slug" element={<CategoryArchive />} />
-            <Route path="/category/narayanganj/:subcategorySlug" element={<CategoryArchive />} />
             <Route path="/videos" element={<VideosArchive />} />
             <Route path="/video/:id" element={<VideoSingle />} />
             <Route path="/opinions" element={<OpinionsArchive />} />
