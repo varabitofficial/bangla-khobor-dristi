@@ -1,6 +1,7 @@
 
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -109,8 +110,75 @@ const PostSingle = () => {
 
   const tags = post.post_tags?.map(pt => pt.tags.name) || [];
 
+  const postUrl = `https://newsviewbd.com/post/${post.id}`;
+  const shareImage = post.featured_image || '/newsview.webp';
+  const shareDescription = post.excerpt || post.content.substring(0, 155) + '...';
+
   return (
     <div className="min-h-screen bg-white font-bangla">
+      <Helmet>
+        <title>{post.title} - নিউজভিউ</title>
+        <meta name="description" content={shareDescription} />
+        <link rel="canonical" href={postUrl} />
+        
+        {/* Open Graph tags */}
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={shareDescription} />
+        <meta property="og:image" content={shareImage} />
+        <meta property="og:url" content={postUrl} />
+        <meta property="og:type" content="article" />
+        <meta property="og:site_name" content="নিউজভিউ" />
+        <meta property="article:published_time" content={post.published_at || post.created_at} />
+        <meta property="article:author" content={post.profiles?.full_name} />
+        <meta property="article:section" content={post.categories?.name} />
+        {tags.map(tag => (
+          <meta key={tag} property="article:tag" content={tag} />
+        ))}
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@newsviewbd" />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={shareDescription} />
+        <meta name="twitter:image" content={shareImage} />
+        
+        {/* Additional SEO tags */}
+        <meta name="author" content={post.profiles?.full_name} />
+        <meta name="keywords" content={tags.join(', ')} />
+        <meta name="robots" content="index, follow" />
+        <meta name="language" content="Bengali" />
+        
+        {/* Schema.org structured data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "NewsArticle",
+            "headline": post.title,
+            "description": shareDescription,
+            "image": shareImage,
+            "author": {
+              "@type": "Person",
+              "name": post.profiles?.full_name
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "নিউজভিউ",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "/logo.svg"
+              }
+            },
+            "datePublished": post.published_at || post.created_at,
+            "dateModified": post.updated_at,
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": postUrl
+            },
+            "articleSection": post.categories?.name,
+            "keywords": tags.join(', ')
+          })}
+        </script>
+      </Helmet>
       <Header />
       
       <main className="container mx-auto px-4 py-8">
